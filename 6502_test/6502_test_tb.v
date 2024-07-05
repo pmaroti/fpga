@@ -38,7 +38,7 @@ always @(posedge clk) begin
 
         default: DI = 8'hEA; // NOP
 	    endcase	
-    1'b1 : OUTLED = DO;
+    default : OUTLED = DO;
   endcase
 end
 

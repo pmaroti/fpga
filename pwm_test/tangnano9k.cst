@@ -1,0 +1,5 @@
+IO_LOC  "clk" 52;
+IO_PORT "clk" PULL_MODE=UP;
+
+IO_LOC  "outbit" 26;
+IO_PORT "outbit" DRIVE=4 IO_TYPE=LVCMOS33;

@@ -1,0 +1,21 @@
+module test();
+    reg [7:0] phase = 0;
+    wire [7:0] out;
+
+    sinlt lts(phase, out);
+
+    initial begin
+        $display("Starting ltsin");
+        $monitor("Output Value %h", out);
+        #1 phase = 1;
+        #1 phase = 2;
+        #1 phase = 3;
+
+    end
+
+    initial begin
+        $dumpfile("nco.vcd");
+        $dumpvars(0, test);
+    end    
+
+endmodule

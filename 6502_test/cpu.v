@@ -566,7 +566,7 @@ always @*
  * ALU
  */
 
-ALU ALU( .clk(clk),
+ALU6502 ALU( .clk(clk),
          .op(alu_op),
          .right(alu_shift_right),
          .AI(AI),

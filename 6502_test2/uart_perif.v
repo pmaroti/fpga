@@ -24,10 +24,17 @@ module uart_perif(
   reg [7:0] uart_tx_byte;
   reg tx_pinReg = 1;
   reg to_send=0;
-  reg to_send_d=1;
   reg busy = 0;
   reg [24:0] txCounter=0;
   reg [2:0] txBitNumber = 0;
+
+  wire tx_trigger;
+
+  posedge_check txTrg( 
+    .clk(uart_clk), 
+    .signal(to_send),
+    .posedge_detected(tx_trigger)
+  );
 
   assign DO = (CS_o) ? uart_output : 8'bz;
   assign tx_pin = tx_pinReg;
@@ -47,7 +54,7 @@ module uart_perif(
   always @(posedge uart_clk) begin
     case (uart_status)
       IDLE: begin
-        if (to_send && ~to_send_d) begin
+        if (tx_trigger) begin
           uart_status <= START;
           txCounter <= 0;
           busy <= 1;  // TX started
@@ -92,7 +99,6 @@ module uart_perif(
 
       default: uart_status <= IDLE;
   endcase
-  to_send_d <= to_send;
 end
 
 endmodule

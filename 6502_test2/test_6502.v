@@ -4,7 +4,6 @@ module test_6502(
   output clk_o,
   output uartTx
 );
-
   reg reset=1;
   wire [15:0] AB;
   wire [7:0] DI;

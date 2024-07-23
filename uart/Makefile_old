@@ -9,16 +9,11 @@ uart.json: uart.v
 	yosys -p "read_verilog uart.v; synth_gowin -top uart -json uart.json"
 
 # Place and Route
-#nextpnr-gowin --json test_6502.json --freq 27 --write test_6502_pnr.json --device ${DEVICE} --family ${FAMILY} --cst ${BOARD}.cst
-test_6502_pnr.json: uart.json
-	nextpnr-himbaechel --json uart.json \
-		--write uart_pnr.json \
-		--device ${DEVICE} \
-		--vopt family=${FAMILY} \
-		--vopt cst=${BOARD}.cst
+uart_pnr.json: uart.json
+	nextpnr-gowin --json uart.json --write uart_pnr.json --freq 27 --device ${DEVICE} --family ${FAMILY} --cst ${BOARD}.cst
 
 # Generate Bitstream
-uart.fs: test_6502_pnr.json
+uart.fs: uart_pnr.json
 	gowin_pack -d ${FAMILY} -o uart.fs uart_pnr.json
 
 # Program Board
@@ -27,7 +22,8 @@ load: uart.fs
 
 # Program Board
 loadram: uart.fs
-	openFPGALoader -b tangnano9k uart.fs -m	
+	openFPGALoader -b ${BOARD} uart.fs -m	
+
 
 # Generate Simulation
 uart_test.o: uart.v uart_tb.v
@@ -37,7 +33,9 @@ uart_test.o: uart.v uart_tb.v
 test: uart_test.o
 	vvp uart_test.o
 
-.PHONY: load
-.INTERMEDIATE: test_6502_pnr.json test_6502.json
+# Cleanup build artifacts
+clean:
+	rm uart.vcd uart.fs uart_test.o
 
-
+.PHONY: load clean test
+.INTERMEDIATE: uart_pnr.json uart.json uart_test.o

@@ -1,29 +1,77 @@
-
 module uart
 #(
     parameter DELAY_FRAMES = 234 // 27,000,000 (27Mhz) / 115200 Baud rate
 )
 (
     input clk,
-    input uart_rx,
-    output uart_tx,
-    output reg [5:0] led,
-    input btn1
+    input CS, 
+    input [2:0] addr,
+    input [7:0] DI,
+    output [7:0] DO,
+    input WE
 );
 
 localparam HALF_DELAY_WAIT = (DELAY_FRAMES / 2);
+
+
+reg [3:0] txState = 0;
+reg [7:0] dataOut = 0;
+reg [2:0] txBitNumber = 0;
+
+reg [7:0] uart_status = 0;
+
+
+localparam UART_OK = 0;
+localparam TX_ERROR = 1;
+localparam TX_ERROR = 1;
+
+
+
+always @(posedge clk) begin
+    // read operations
+    if (~WE) begin
+        // fetch status
+        if (addr == 2'b00) begin
+            DO <= uart_status;
+        end
+    end
+
+    // write operation
+    if (WE) begin
+        // byte to send
+        if ( (txState == TX_STATE_IDLE) and (addr == 2'b01)) begin
+            dataOut <= DI;
+            txState <= TX_STATE_START_BIT;
+            uart_status <= UART_OK;
+        end else begin
+            uart_status <= TX_ERROR;
+        end
+
+        if (addr == 2b'00) begin
+
+        end
+    end
+end
+
+
+
+
+
 
 reg [3:0] rxState = 0;
 reg [12:0] rxCounter = 0;
 reg [7:0] dataIn = 0;
 reg [2:0] rxBitNumber = 0;
 reg byteReady = 0;
+reg send_ready = 0;
 
 localparam RX_STATE_IDLE = 0;
 localparam RX_STATE_START_BIT = 1;
 localparam RX_STATE_READ_WAIT = 2;
 localparam RX_STATE_READ = 3;
 localparam RX_STATE_STOP_BIT = 5;
+localparam RX_STATE_WAIT_FOR_ACK = 6;
+
 
 always @(posedge clk) begin
     case (rxState)
@@ -60,9 +108,16 @@ always @(posedge clk) begin
         RX_STATE_STOP_BIT: begin
             rxCounter <= rxCounter + 1;
             if ((rxCounter + 1) == DELAY_FRAMES) begin
-                rxState <= RX_STATE_IDLE;
+                rxState <= RX_STATE_WAIT_FOR_ACK;
                 rxCounter <= 0;
                 byteReady <= 1;
+            end
+        end
+
+        RX_STATE_WAIT_FOR_ACK: begin
+            if (receive_ack != 0 ) begin
+                rxState <= RX_STATE_IDLE;
+                byteReady <= 0;
             end
         end
     endcase
@@ -70,7 +125,8 @@ end
 
 always @(posedge clk) begin
     if (byteReady) begin
-        led <= ~dataIn[5:0];
+        char_received <= dataIn;
+        receive_ready <= 1;
     end
 end
 
@@ -82,25 +138,6 @@ reg [2:0] txBitNumber = 0;
 reg [3:0] txByteCounter = 0;
 
 assign uart_tx = txPinRegister;
-
-localparam MEMORY_LENGTH = 12;
-reg [7:0] testMemory [MEMORY_LENGTH-1:0];
-
-initial begin
-    testMemory[0] = "L";
-    testMemory[1] = "u";
-    testMemory[2] = "s";
-    testMemory[3] = "h";
-    testMemory[4] = "a";
-    testMemory[5] = "y";
-    testMemory[6] = " ";
-    testMemory[7] = "L";
-    testMemory[8] = "a";
-    testMemory[9] = "b";
-    testMemory[10] = "s";
-    testMemory[11] = " ";
-    led = 8'b0101_0101;
-end
 
 localparam TX_STATE_IDLE = 0;
 localparam TX_STATE_START_BIT = 1;

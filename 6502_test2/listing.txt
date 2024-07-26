@@ -1,0 +1,11 @@
+ca65 V2.19 - Git 03d824e13
+Main file   : program.s
+Current file: program.s
+
+000000r 1               .org $AA00
+00AA00  1  A9 00            LDA #$00
+00AA02  1               blink_loop:
+00AA02  1  8D 10 7F         STA $7F10
+00AA05  1  69 01            ADC #1              ; increment A
+00AA07  1  4C 02 AA         JMP blink_loop
+00AA07  1               

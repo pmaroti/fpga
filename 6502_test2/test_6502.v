@@ -14,8 +14,8 @@ module test_6502(
   reg RDY = 1;
   reg clk_cpu = 0;
 
-  reg CS_mem_o;
-  wire CS_mem;
+  reg CS_rom_o;
+  wire CS_rom;
 
   reg CS_resetvector_o;
   wire CS_resetvector;
@@ -39,14 +39,15 @@ module test_6502(
     .RDY(RDY) 
   );
   memory  #(
-    .isROM(1'b1)
+    .isROM(1'b1),
+    .MEMSIZE(512)
   ) rom
   ( 
     .clk(clk_cpu),
     .AB(AB[8:0]),
     .WE(WE),
-    .CS(CS_mem),
-    .CS_o(CS_mem_o),
+    .CS(CS_rom),
+    .CS_o(CS_rom_o),
     .DI(DO), 
     .DO(DI)
   );
@@ -85,13 +86,13 @@ module test_6502(
   );
   
 
-  assign CS_mem = ((AB & 16'hFE00) == 16'hAA00) ? 1 : 0;
+  assign CS_rom = ((AB & 16'hFE00) == 16'hAA00) ? 1 : 0;
   assign CS_resetvector = ((AB & 16'hFFFC) ==  16'hFFFC)  ? 1 : 0 ;
   assign CS_led_perif = (AB ==  16'hCC10)  ? 1 : 0 ;
   assign CS_uart_perif = ((AB & 16'hFFFE) == 16'hCC20)  ? 1 : 0 ;
 
   always @(posedge clk_cpu) begin
-    CS_mem_o <= CS_mem & ~WE;
+    CS_rom_o <= CS_rom & ~WE;
     CS_resetvector_o <= CS_resetvector & ~WE;
     CS_led_perif_o <= CS_led_perif & ~WE;
     CS_uart_perif_o <= CS_uart_perif & ~WE;

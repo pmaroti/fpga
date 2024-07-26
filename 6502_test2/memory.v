@@ -1,6 +1,7 @@
 module memory 
 #(
-  parameter isROM = 1'b0
+  parameter isROM = 1'b0,
+  parameter MEMSIZE = 512
 )
 (
   input clk, 
@@ -12,7 +13,7 @@ module memory
   output wire [7:0] DO 
 );
 
-  reg [7:0] prog_mem [511:0];
+  reg [7:0] prog_mem [(MEMSIZE-1):0];
   integer i;
   reg [7:0] data_out = 8'hea;
 

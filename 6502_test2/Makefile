@@ -37,6 +37,11 @@ test_6502.o: test_6502_tb.v cpu.v ALU6502.v test_6502.v memory.v reset_vector.v 
 test: test_6502.o
 	vvp test_6502.o
 
+compile: rom.bin
+	ca65 -vvv --cpu 6502 -l listing.txt -o rom.o program.s
+	ld65 -o rom.bin -t none rom.o
+	hexdump -e '16/1 "%02x " "\n"' rom.bin > rom.hex	
+
 .PHONY: load
 .INTERMEDIATE: test_6502_pnr.json test_6502.json
 

@@ -1,4 +1,8 @@
-module memory(
+module memory 
+#(
+  parameter isROM = 1'b0
+)
+(
   input clk, 
   input [8:0] AB,
   input WE,
@@ -15,29 +19,8 @@ module memory(
   assign DO = (CS_o) ? data_out : 8'bz;
 
   initial begin
-
-    for (i = 0; i < 512; i++) begin
-        prog_mem[i] <= 8'b00000000;
-    end
-
-    prog_mem[16'h00] <= 8'hA9; // LDA #0
-    prog_mem[16'h01] <= 8'h00;
-
-    prog_mem[16'h02] <= 8'h8d; // STA $0020
-    prog_mem[16'h03] <= 8'h20;
-    prog_mem[16'h04] <= 8'h00;
-
-    prog_mem[16'h05] <= 8'h8d; // STA $0010
-    prog_mem[16'h06] <= 8'h10;
-    prog_mem[16'h07] <= 8'h00;
-
-    prog_mem[16'h08] <= 8'h69; // ADC #1
-    prog_mem[16'h09] <= 8'h01;
-
-    prog_mem[16'h0A] <= 8'h4c; // JMP $AA04
-    prog_mem[16'h0B] <= 8'h02;
-    prog_mem[16'h0C] <= 8'hAA;
-
+    if (isROM == 1'b1)
+      $readmemh("rom.hex", prog_mem);
   end
 
   always @(posedge clk) begin

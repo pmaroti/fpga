@@ -5,7 +5,8 @@ Current file: program.s
 000000r 1               .org $AA00
 00AA00  1  A9 00            LDA #$00
 00AA02  1               blink_loop:
-00AA02  1  8D 10 7F         STA $7F10
-00AA05  1  69 01            ADC #1              ; increment A
-00AA07  1  4C 02 AA         JMP blink_loop
-00AA07  1               
+00AA02  1  8D 20 CC         STA $CC20
+00AA05  1  8D 10 CC         STA $CC10
+00AA08  1  69 01            ADC #1              ; increment A
+00AA0A  1  4C 02 AA         JMP blink_loop
+00AA0A  1               

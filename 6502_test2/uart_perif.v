@@ -1,7 +1,7 @@
 module uart_perif(
   input clk,
   input uart_clk, 
-  input [1:0] AB,
+  input AB,
   input WE,
   input CS,
   input CS_o, 
@@ -40,6 +40,7 @@ module uart_perif(
   assign tx_pin = tx_pinReg;
   assign test_pin = busy;
 
+/*
   always @(negedge clk) begin
     if (CS) begin
       if (WE && ~busy) begin // we can send if Tx is not busy
@@ -50,6 +51,27 @@ module uart_perif(
        to_send <= 0;
     end
   end
+*/
+  
+  always @(negedge clk) begin
+    if (CS) begin
+      case ({WE,AB})
+        2'b10: begin
+          if (~busy) begin
+            uart_tx_byte <= DI;
+            to_send <= 1;
+          end
+        end
+        2'b01: begin
+          uart_output <= {7'b000000,busy};
+        end
+      endcase
+    end else begin
+       to_send <= 0;
+    end
+  end
+
+
 
   always @(posedge uart_clk) begin
     case (uart_status)

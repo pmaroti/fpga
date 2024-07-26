@@ -38,7 +38,10 @@ module test_6502(
     .NMI(NMI),
     .RDY(RDY) 
   );
-  memory my_memory( 
+  memory  #(
+    .isROM(1'b1)
+  ) rom
+  ( 
     .clk(clk_cpu),
     .AB(AB[8:0]),
     .WE(WE),
@@ -71,7 +74,7 @@ module test_6502(
   uart_perif my_uart_perif( 
     .clk(clk_cpu), 
     .uart_clk(clk),
-    .AB(AB[1:0]), 
+    .AB(AB[0]), 
     .WE(WE), 
     .CS(CS_uart_perif), 
     .CS_o(CS_uart_perif_o), 
@@ -80,12 +83,12 @@ module test_6502(
     .tx_pin(uartTx),
     .test_pin(clk_o)
   );
-
+  
 
   assign CS_mem = ((AB & 16'hFE00) == 16'hAA00) ? 1 : 0;
   assign CS_resetvector = ((AB & 16'hFFFC) ==  16'hFFFC)  ? 1 : 0 ;
-  assign CS_led_perif = (AB ==  16'h0010)  ? 1 : 0 ;
-  assign CS_uart_perif = ((AB & 16'hFFFC) == 16'h0020)  ? 1 : 0 ;
+  assign CS_led_perif = (AB ==  16'hCC10)  ? 1 : 0 ;
+  assign CS_uart_perif = ((AB & 16'hFFFE) == 16'hCC20)  ? 1 : 0 ;
 
   always @(posedge clk_cpu) begin
     CS_mem_o <= CS_mem & ~WE;
@@ -93,10 +96,11 @@ module test_6502(
     CS_led_perif_o <= CS_led_perif & ~WE;
     CS_uart_perif_o <= CS_uart_perif & ~WE;
   end
-  
 
   `ifndef TEST
-  localparam CLKDIV = 1350000;
+  //localparam CLKDIV = 1350000;
+  localparam CLKDIV = 23400;
+  //ocalparam CLKDIV = 13;
   `endif 
 
   `ifdef TEST
@@ -127,5 +131,6 @@ module test_6502(
       reset_cntr <= reset_cntr + 8'b1;
     end
   end
+
 
 endmodule

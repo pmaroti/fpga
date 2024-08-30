@@ -12,52 +12,56 @@ Current file: program.s
 00FF05  1               
 00FF05  1  A9 00            LDA #$00
 00FF07  1               lp:
-00FF07  1  8D 00 10         STA $1000           ; ledpin output
-00FF0A  1  69 01            ADC #1              ; increment A
-00FF0C  1               
-00FF0C  1  A2 C8            LDX #200            ; sleep 200*1ms
-00FF0E  1               lp2:
-00FF0E  1  20 17 FF         JSR sleep1ms
-00FF11  1  CA               DEX
-00FF12  1  D0 FA            BNE lp2
+00FF07  1  AE 00 20         LDX $2000
+00FF0A  1  F0 03            BEQ cont1
+00FF0C  1  AD 01 20         LDA $2001
+00FF0F  1               cont1:
+00FF0F  1  8D 00 10         STA $1000           ; ledpin output
+00FF12  1  69 01            ADC #1              ; increment A
 00FF14  1               
-00FF14  1  4C 07 FF         JMP lp
-00FF17  1               
-00FF17  1               sleep1ms:
-00FF17  1  48               PHA     ;3
-00FF18  1  98               TYA     ;2
-00FF19  1  48               PHA     ;3
-00FF1A  1  8A               TXA     ;2
-00FF1B  1  48               PHA     ;3
+00FF14  1  A2 C8            LDX #200            ; sleep 200*1ms
+00FF16  1               lp2:
+00FF16  1  20 1F FF         JSR sleep1ms
+00FF19  1  CA               DEX
+00FF1A  1  D0 FA            BNE lp2
 00FF1C  1               
-00FF1C  1  A2 47            LDX #71    ;2
-00FF1E  1                   ;sum15
-00FF1E  1               lsleep2:
-00FF1E  1  A0 5D            LDY #93    ;2
-00FF20  1               lsleep1:
-00FF20  1  88               DEY     ;2
-00FF21  1  D0 FD            BNE lsleep1 ;2/3
-00FF23  1                   ; sum15, 2+4*Y + 2
-00FF23  1  CA               DEX     ;2
-00FF24  1  D0 F8            BNE lsleep2 ;2/3
-00FF26  1                   ; sum:15 + X*(2+4*Y+2+4)+2
-00FF26  1                   ; 15 + X*(8+4*Y)+2
-00FF26  1                   ; 17 + X*(8+4*Y)
-00FF26  1               
-00FF26  1  68               PLA     ;4
-00FF27  1  AA               TAX     ;2
-00FF28  1  68               PLA     ;4
-00FF29  1  A8               TAY     ;2
-00FF2A  1  68               PLA     ;4
-00FF2B  1  EA               NOP     ;1
-00FF2C  1  60               RTS     ;6
-00FF2D  1                   ; 40 + X*(8+4*Y) --> 71, 93, 27020, 0.000740741
-00FF2D  1               
-00FF2D  1               
-00FF2D  1               
-00FF2D  1               
-00FF2D  1               .segment "VECTS"
-00FF2D  1               .org $FFFA
+00FF1C  1  4C 07 FF         JMP lp
+00FF1F  1               
+00FF1F  1               sleep1ms:
+00FF1F  1  48               PHA     ;3
+00FF20  1  98               TYA     ;2
+00FF21  1  48               PHA     ;3
+00FF22  1  8A               TXA     ;2
+00FF23  1  48               PHA     ;3
+00FF24  1               
+00FF24  1  A2 47            LDX #71    ;2
+00FF26  1                   ;sum15
+00FF26  1               lsleep2:
+00FF26  1  A0 5D            LDY #93    ;2
+00FF28  1               lsleep1:
+00FF28  1  88               DEY     ;2
+00FF29  1  D0 FD            BNE lsleep1 ;2/3
+00FF2B  1                   ; sum15, 2+4*Y + 2
+00FF2B  1  CA               DEX     ;2
+00FF2C  1  D0 F8            BNE lsleep2 ;2/3
+00FF2E  1                   ; sum:15 + X*(2+4*Y+2+4)+2
+00FF2E  1                   ; 15 + X*(8+4*Y)+2
+00FF2E  1                   ; 17 + X*(8+4*Y)
+00FF2E  1               
+00FF2E  1  68               PLA     ;4
+00FF2F  1  AA               TAX     ;2
+00FF30  1  68               PLA     ;4
+00FF31  1  A8               TAY     ;2
+00FF32  1  68               PLA     ;4
+00FF33  1  EA               NOP     ;1
+00FF34  1  60               RTS     ;6
+00FF35  1                   ; 40 + X*(8+4*Y) --> 71, 93, 27020, 0.000740741
+00FF35  1               
+00FF35  1               
+00FF35  1               
+00FF35  1               
+00FF35  1               .segment "VECTS"
+00FF35  1               .org $FFFA
 00FFFA  1  00 FF        	.word	reset		; NMI
 00FFFC  1  00 FF        	.word	reset		; RESET
 00FFFE  1  00 FF        	.word	reset		; IRQ

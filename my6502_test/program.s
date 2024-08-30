@@ -7,7 +7,11 @@ reset:
     TXS        ; Transfer X to stack pointer
 
     LDA #$00
-lp:    
+lp:
+    LDX $2000
+    BEQ cont1
+    LDA $2001
+cont1:
     STA $1000           ; ledpin output
     ADC #1              ; increment A
 

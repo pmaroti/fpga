@@ -69,10 +69,12 @@ module system (
 					ido <= ram_int[ca[7:0]];
 			end else if (csiuart) begin
 				if (!we) begin
-					if(ca[0]) begin
+					if(ca[0] == 1'b0 ) begin
 						ido <= {7'b0000_000, received};
+						receive_read <= 1'b0;
 					end else begin
 						ido <= rx_byte;
+						receive_read <= 1'b1;
 					end
 				end
 			end 
@@ -100,7 +102,6 @@ module system (
 		end
 	end
 
-
 // UART receiver
 	localparam DELAY_FRAMES = 235; // 27,000,000 (27Mhz) / 115200 Baud rate
 	localparam DELAYHALF_FRAME = 117;  // 0.5 bit length
@@ -113,17 +114,40 @@ module system (
 	reg [7:0] rx_byte;
 	reg [2:0] rx_status;
 	reg received;
+	reg receive_set;
+	reg receive_read;
+	
+	reg o_receive_set;
+	reg o_receive_read;
+
 	reg [15:0] rx_counter;
 	reg [2:0] bit_counter;
 
 	always @(posedge cclk) begin
 		if (reset) begin
 			received <= 1'b0;
+			o_receive_set <= 1'b0;
+			o_receive_read <= 1'b0;
+		end
+
+		if (receive_set && !o_receive_set)
+			received <= 1'b1;
+
+		if (receive_read && !o_receive_read)
+			received <= 1'b0;
+
+		o_receive_set <= receive_set;
+		o_receive_read <= receive_read;
+	end
+
+	always @(posedge cclk) begin
+		if (reset) begin
 			rx_status <= IDLE;
 		end
 
 		case(rx_status)
 			IDLE: begin
+				receive_set <= 1'b0;
 				if (uartRx == 0) begin
 					rx_status <= START;
 					rx_counter <= 0;
@@ -160,7 +184,7 @@ module system (
 					rx_counter <= rx_counter + 1;
 				end else begin
 					rx_status <= IDLE;
-					received <= 1'b1;
+					receive_set <= 1'b1;
 				end
 			end
 

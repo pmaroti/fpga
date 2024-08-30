@@ -1,0 +1,1159 @@
+ca65 V2.13.3 - (C) Copyright 1998-2012 Ullrich von Bassewitz
+Main file   : dos.s
+Current file: dos.s
+
+000000r 1               ; ------------------------------------------------------------------------
+000000r 1               ; Define the I/O registres
+000000r 1               	UTXD	=	$E000
+000000r 1               	URXD	=	$E000
+000000r 1               	USTAT	=	$E001
+000000r 1               	BORDER	=	$E001
+000000r 1               	CTRL1	=	$E002
+000000r 1               	STAT1	=	$E002
+000000r 1               	CTRL2	=	$E003
+000000r 1               	STAT2	=	$E003
+000000r 1               	PINOUT	=	$E004
+000000r 1               	PININ	=	$E005
+000000r 1               	PAL0	=	$E005
+000000r 1               	PAL1	=	$E006
+000000r 1               	PWM	=	$E007
+000000r 1               	KBD	=	$E007
+000000r 1               	PAGE0	=	$E008
+000000r 1               	PAGE1	=	$E009
+000000r 1               	PAGE2	=	$E00A
+000000r 1               	PAGE3	=	$E00B
+000000r 1               	PAGE4	=	$E00C
+000000r 1               	PAGE5	=	$E00D
+000000r 1               	PAGE6	=	$E00E
+000000r 1               
+000000r 1               ; ------------------------------------------------------------------------
+000000r 1               ; Define the ZP variables
+000000r 1               
+000000r 1               	tmp1	= $00
+000000r 1               	tmp2	= $01
+000000r 1               	tmp3	= $02
+000000r 1               	tmp4	= $03
+000000r 1               	ptr1	= $04
+000000r 1               	ptr2	= $06
+000000r 1               	ptr3	= $08
+000000r 1               
+000000r 1               	coltxt	= $17
+000000r 1               
+000000r 1               .zeropage
+000000r 1               	.exportzp	MMCcmd,sector,cluster,dircluster,FAT,FATsecperclus
+000000r 1               	.exportzp	FATnrootsec,FATrootsec,Filesize
+000000r 1               
+000000r 1  xx           MMCcmd:		.res	1	; MMC command+address(32 bits)+crc
+000001r 1  xx           MMCaddr3:	.res	1
+000002r 1  xx           MMCaddr2:	.res	1
+000003r 1  xx           MMCaddr1:	.res	1
+000004r 1  xx           MMCaddr0:	.res	1
+000005r 1  xx           MMCcrc:		.res	1
+000006r 1               sector:
+000006r 1  xx           sector0:	.res	1	; sector: 24 bits
+000007r 1  xx           sector1:	.res	1
+000008r 1  xx           sector2:	.res	1
+000009r 1               
+000009r 1  xx xx xx     FAT:		.res	3	; first sector of the FAT (1st copy)
+00000Cr 1  xx           FATsecperclus:	.res	1
+00000Dr 1  xx xx        FATnrootsec:	.res	2	; number of sectors of the root directory
+00000Fr 1  xx xx xx     FATrootsec:	.res	3	; first sector of the root directory
+000012r 1               
+000012r 1  xx xx        dircluster:	.res	2	; start cluster for current subdirectory (zero if root)
+000014r 1               
+000014r 1  xx xx        cluster:	.res	2	; current cluster (16 bits)
+000016r 1  xx xx xx xx  Filesize:	.res	4	; cluster and Filesize must be on consecutive addresses
+00001Ar 1  xx           sectorcnt:	.res	1	; Remaining sectors in the cluster
+00001Br 1  xx           FileFlags:	.res	1	; Flags for files (only EOF yet)
+00001Cr 1               
+00001Cr 1               
+00001Cr 1               ; ------------------------------------------------------------------------
+00001Cr 1               ; Define ROM functions
+00001Cr 1               	cout =		$FF24
+00001Cr 1               	cin =		$FF27
+00001Cr 1               	spibyte =	$FF2D
+00001Cr 1               
+00001Cr 1               ;----------------------------------------------------
+00001Cr 1               ; Header
+00001Cr 1               .code
+000000r 1  B0 CA        	.byte	$B0, $CA
+000002r 1  rr rr        	.word	loadaddr
+000004r 1  rr rr        	.word	inicio
+000006r 1  62 06        	.word	endcode-loadaddr
+000008r 1               
+000008r 1               loadaddr:
+000008r 1               ;----------------------------------------------------
+000008r 1               inicio:	;lda	#84
+000008r 1               	;sta	coltxt
+000008r 1  20 rr rr     	jsr	mmc_init
+00000Br 1  B0 17        	bcs	dcmd
+00000Dr 1  A2 09        	ldx	#(msgSD-msgs)	; notify on UART also
+00000Fr 1  20 rr rr     	jsr	uputs
+000012r 1               
+000012r 1  20 rr rr     	jsr	FAT_init
+000015r 1  B0 0D        	bcs	dcmd
+000017r 1  A2 10        	ldx	#(msgFAT-msgs)	; notify on UART also
+000019r 1  20 rr rr     	jsr	uputs
+00001Cr 1               	;------------------------ root directory listing
+00001Cr 1  A9 0A        	lda	#10
+00001Er 1  20 24 FF     	jsr	cout
+000021r 1  20 rr rr     	jsr	FAT_list_dir
+000024r 1  4C rr rr     dcmd:	jmp	doscmd
+000027r 1               ;----------------------------------------------------
+000027r 1               
+000027r 1               	.include "spi.s"
+000027r 2               ;--------------------------------------------------------------------
+000027r 2               ;--------------------------------------------------------------------
+000027r 2               ;				SPI code
+000027r 2               ;--------------------------------------------------------------------
+000027r 2               ;--------------------------------------------------------------------
+000027r 2               
+000027r 2               ; block transfer (up to 256 bytes), writting
+000027r 2               ; ptr1 -> origin of data
+000027r 2               ; Y: number of bytes (1 minimum, 0 means 256 bytes)
+000027r 2               ; A: modiffied
+000027r 2               
+000027r 2               	.export	spiwr
+000027r 2  84 01        spiwr:	sty	tmp2
+000029r 2  A0 00        	ldy	#0
+00002Br 2  B1 04        spiwr1:	lda	(ptr1),y
+00002Dr 2  20 2D FF     	jsr	spibyte
+000030r 2  C8           	iny
+000031r 2  C4 01        	cpy	tmp2
+000033r 2  D0 F6        	bne	spiwr1
+000035r 2  60           	rts
+000036r 2               
+000036r 2               ; block transfer (up to 256 bytes), reading
+000036r 2               ; ptr1 <- destination of data
+000036r 2               ; Y: number of bytes (minimum: 2 bytes, 0 means 256 bytes)
+000036r 2               ; A, X, tmp1: modiffied
+000036r 2               
+000036r 2               	.export	spird
+000036r 2               spird:
+000036r 2  84 01        	sty	tmp2
+000038r 2  A0 00        	ldy	#0
+00003Ar 2               
+00003Ar 2  A9 FF        spird1:	lda	#$ff
+00003Cr 2  20 2D FF     	jsr	spibyte
+00003Fr 2  91 04        	sta	(ptr1),y
+000041r 2  C8           	iny
+000042r 2  C4 01        	cpy	tmp2
+000044r 2  D0 F4        	bne	spird1
+000046r 2  60           	rts
+000047r 2               
+000047r 2               
+000047r 1               	.include "mmc.s"
+000047r 2               ; ------------------------------------------------------------------------
+000047r 2               del5m:	; retardo de unos 5ms
+000047r 2  48           	pha
+000048r 2  8A           	txa
+000049r 2  48           	pha
+00004Ar 2  A2 9C        	ldx 	#156
+00004Cr 2  A9 20        	lda	#$20
+00004Er 2  2C 02 E0     d5m1:	bit	STAT1
+000051r 2  D0 FB        	bne	d5m1
+000053r 2  2C 02 E0     d5m2:	bit	STAT1
+000056r 2  F0 FB        	beq	d5m2
+000058r 2  CA           	dex
+000059r 2  D0 F3        	bne	d5m1
+00005Br 2  68           	pla
+00005Cr 2  AA           	tax
+00005Dr 2  68           	pla
+00005Er 2  60           	rts
+00005Fr 2               ; ------------------------------------------------------------------------
+00005Fr 2               ; Selection routines for MMC.
+00005Fr 2               
+00005Fr 2               	.export	mmc_cs_l, mmc_cs_h
+00005Fr 2               mmc_cs_l:
+00005Fr 2  48           	pha
+000060r 2  A9 EF        	lda	#$EF	; /CS Low
+000062r 2  2D 04 E0     	and	PINOUT
+000065r 2  8D 04 E0     mmccs1:	sta	PINOUT
+000068r 2  68           	pla
+000069r 2  60           	rts
+00006Ar 2               mmc_cs_h:
+00006Ar 2  48           	pha
+00006Br 2  A9 10        	lda	#$10	; /CS High
+00006Dr 2  0D 04 E0     	ora	PINOUT
+000070r 2  4C rr rr     	jmp	mmccs1
+000073r 2               
+000073r 2               ; ------------------------------------------------------------------------
+000073r 2               ; ------------------------------------------------------------------------
+000073r 2               ; 				MMC stuff
+000073r 2               ; ------------------------------------------------------------------------
+000073r 2               ; ------------------------------------------------------------------------
+000073r 2               ; MMC_send_command: sends a 6-byte command to MMC/SD card
+000073r 2               ; arguments: MMCcmd structure
+000073r 2               ; returns: A: first byte of response (R1 according to standard)
+000073r 2               ; 	   X: modiffied
+000073r 2               
+000073r 2               	.export	MMC_send_command
+000073r 2               MMC_send_command:
+000073r 2  A9 FF        	lda	#$ff		; dummy data
+000075r 2  20 2D FF     	jsr	spibyte
+000078r 2  A2 00        	ldx	#0
+00007Ar 2  B5 rr        mmcsc1:	lda	MMCcmd,x	; command + addr + crc (6 bytes)
+00007Cr 2  20 2D FF     	jsr	spibyte
+00007Fr 2  E8           	inx
+000080r 2  E0 06        	cpx	#6
+000082r 2  D0 F6        	bne	mmcsc1
+000084r 2  A9 FF        	lda	#$ff
+000086r 2  20 2D FF     	jsr	spibyte		; dummy data
+000089r 2  A2 08        	ldx	#8
+00008Br 2  A9 FF        mmcsc2:	lda	#$ff		; wait for response up to 8 bytes
+00008Dr 2  20 2D FF     	jsr	spibyte
+000090r 2  10 03        	bpl	mmcsc3
+000092r 2  CA           	dex
+000093r 2  D0 F6        	bne	mmcsc2
+000095r 2  60           mmcsc3:	rts
+000096r 2               
+000096r 2               ; ------------------------------------------------------------------------
+000096r 2               ; mmc_init: performs a SD card initialization acording to the SD standard
+000096r 2               ; (more or less)
+000096r 2               
+000096r 2               	.export	mmc_init
+000096r 2               mmc_init:
+000096r 2  20 rr rr     	jsr	mmc_cs_h	; /CS High
+000099r 2               
+000099r 2  A2 64        	ldx	#100		; some clock cycles for the card
+00009Br 2  A9 FF        mmcin1:	lda	#$ff
+00009Dr 2  20 2D FF     	jsr	spibyte
+0000A0r 2  CA           	dex
+0000A1r 2  D0 F8        	bne	mmcin1
+0000A3r 2               
+0000A3r 2  20 rr rr     	jsr	mmc_cs_l	; /CS low
+0000A6r 2               
+0000A6r 2  A9 40        	lda	#$40		; GO_IDLE_STATE command
+0000A8r 2  85 rr        	sta	MMCcmd		; (with /CS low puts the card in SPI mode)
+0000AAr 2  A9 00        	lda	#0
+0000ACr 2  85 rr        	sta	MMCaddr0
+0000AEr 2  85 rr        	sta	MMCaddr1
+0000B0r 2  85 rr        	sta	MMCaddr2
+0000B2r 2  85 rr        	sta	MMCaddr3
+0000B4r 2  A9 95        	lda	#$95		; CRC has to be correct for this command
+0000B6r 2  85 rr        	sta	MMCcrc
+0000B8r 2  20 rr rr     	jsr	MMC_send_command
+0000BBr 2  20 rr rr     	jsr	mmc_cs_h	; /CS high
+0000BEr 2  C9 01        	cmp	#1		; correct response is 1: idle, no other error
+0000C0r 2  F0 02        	beq	mmcin2
+0000C2r 2  38           mmcin0:	sec			; return with error
+0000C3r 2  60           	rts
+0000C4r 2  20 2D FF     mmcin2:	jsr	spibyte		; 8 clock cycles
+0000C7r 2  20 rr rr     	jsr	mmc_cs_l
+0000CAr 2  A9 48        	lda	#$48		; SEND_IF_COND command (required for SD 2.0)
+0000CCr 2  85 rr        	sta	MMCcmd
+0000CEr 2  A9 01        	lda	#1
+0000D0r 2  85 rr        	sta	MMCaddr1
+0000D2r 2  A9 D5        	lda	#$D5		; CRC has to be correct for this command
+0000D4r 2  85 rr        	sta	MMCcrc
+0000D6r 2  20 rr rr     	jsr	MMC_send_command
+0000D9r 2  85 00        	sta	tmp1
+0000DBr 2  20 2D FF     	jsr	spibyte		; read 4 more response bytes
+0000DEr 2  20 2D FF     	jsr	spibyte
+0000E1r 2  20 2D FF     	jsr	spibyte
+0000E4r 2  85 01        	sta	tmp2		; this byte contains the card's voltage
+0000E6r 2  20 2D FF     	jsr	spibyte
+0000E9r 2  20 rr rr     	jsr	mmc_cs_h
+0000ECr 2  A9 04        	lda	#4		; invalid command response if SD v 1.x
+0000EEr 2  24 00        	bit	tmp1
+0000F0r 2  D0 08        	bne	mmcin6
+0000F2r 2  A9 0F        	lda	#$0f
+0000F4r 2  25 01        	and	tmp2
+0000F6r 2  C9 01        	cmp	#1		; voltage index = 1 (2.7 to 3.6 Volt)
+0000F8r 2  D0 39        	bne	mmcine
+0000FAr 2               
+0000FAr 2  A9 00        mmcin6:	lda	#0		; Now we send ACMD41 until an active response
+0000FCr 2  85 rr        	sta	MMCaddr1
+0000FEr 2  A9 FF        	lda	#$ff
+000100r 2  85 rr        	sta	MMCcrc
+000102r 2  A0 28        	ldy	#40		; number of retries
+000104r 2  A9 FF        mmcin5:	lda	#$ff
+000106r 2  20 2D FF     	jsr	spibyte		; 8 clock cycles
+000109r 2  20 rr rr     	jsr	mmc_cs_l
+00010Cr 2  A9 77        	lda	#$77		; APP_CMD is required prior to ACMDs
+00010Er 2  85 rr        	sta	MMCcmd
+000110r 2  20 rr rr     	jsr	MMC_send_command
+000113r 2  A9 FF        	lda	#$ff
+000115r 2  20 2D FF     	jsr	spibyte
+000118r 2  A9 69        	lda	#$69		; ACMD41 command
+00011Ar 2  85 rr        	sta	MMCcmd
+00011Cr 2  A9 FF        	lda	#$ff
+00011Er 2  20 rr rr     	jsr	MMC_send_command
+000121r 2  29 01        	and	#1		; retry if still in idle state
+000123r 2  F0 10        	beq	mmcin4
+000125r 2  A2 05        	ldx	#5
+000127r 2  20 rr rr     mmcin3:	jsr	del5m		; 25 ms delay between retries
+00012Ar 2  CA           	dex
+00012Br 2  D0 FA        	bne	mmcin3
+00012Dr 2  20 rr rr     	jsr	mmc_cs_h
+000130r 2  88           	dey
+000131r 2  D0 D1        	bne	mmcin5
+000133r 2  38           mmcine:	sec			; return with error
+000134r 2  60           	rts
+000135r 2  18           mmcin4:	clc			; return OK
+000136r 2  60           	rts
+000137r 2               
+000137r 2               ; ------------------------------------------------------------------------
+000137r 2               ; mmc_read_sector:
+000137r 2               ; arguments: sector[0,1,2]: sector to be read
+000137r 2               ;	     ptr1: pointer to destination buffer
+000137r 2               ; returns CY=1 if error
+000137r 2               ; modiffies: A, X, Y, MMCcmd structure
+000137r 2               
+000137r 2               	.export	mmc_rd_sector
+000137r 2               mmc_rd_sector:
+000137r 2  A9 00        	lda	#0		; MMC address = sector * 512
+000139r 2  85 rr        	sta	MMCaddr0
+00013Br 2  A5 rr        	lda	sector0
+00013Dr 2  0A           	asl	a
+00013Er 2  85 rr        	sta	MMCaddr1
+000140r 2  A5 rr        	lda	sector1
+000142r 2  2A           	rol	a
+000143r 2  85 rr        	sta	MMCaddr2
+000145r 2  A5 rr        	lda	sector2
+000147r 2  2A           	rol	a
+000148r 2  85 rr        	sta	MMCaddr3
+00014Ar 2               
+00014Ar 2  20 rr rr     	jsr	mmc_cs_l
+00014Dr 2  A9 51        	lda	#$51
+00014Fr 2  85 rr        	sta	MMCcmd		; READ_SINGLE_BLOCK command
+000151r 2  20 rr rr     	jsr	MMC_send_command
+000154r 2  09 00        	ora	#0
+000156r 2  D0 24        	bne	mmcrd1
+000158r 2               
+000158r 2  A9 FF        mmcrd2:	lda	#$ff		; wait for data tokem
+00015Ar 2  20 2D FF     	jsr	spibyte
+00015Dr 2  C9 FE        	cmp	#$fe
+00015Fr 2  D0 F7        	bne	mmcrd2
+000161r 2               
+000161r 2  A0 00        	ldy	#0
+000163r 2  20 rr rr     	jsr	spird		; 256 bytes to low buffer
+000166r 2  E6 05        	inc	ptr1+1
+000168r 2  20 rr rr     	jsr	spird		; 256 bytes to high buffer
+00016Br 2  C6 05        	dec	ptr1+1
+00016Dr 2  A9 FF        	lda	#$ff		; ignore CRC16
+00016Fr 2  20 2D FF     	jsr	spibyte
+000172r 2  A9 FF        	lda	#$ff
+000174r 2  20 2D FF     	jsr	spibyte
+000177r 2  20 rr rr     	jsr	mmc_cs_h
+00017Ar 2  18           	clc
+00017Br 2  60           	rts
+00017Cr 2               
+00017Cr 2  20 rr rr     mmcrd1:	jsr	mmc_cs_h	; error, set carry
+00017Fr 2  38           	sec
+000180r 2  60           	rts
+000181r 2               
+000181r 2               ; ------------------------------------------------------------------------
+000181r 2               ; mmc_write_sector:
+000181r 2               ; arguments: sector[0,1,2]: sector to be written
+000181r 2               ;	     ptr1: pointer to source buffer
+000181r 2               ; returns CY=1 if error
+000181r 2               ; modiffies: A, X, Y, MMCcmd structure
+000181r 2               
+000181r 2               	.export mmc_wr_sector
+000181r 2               mmc_wr_sector:
+000181r 2  A9 00        	lda	#0		; MMC address = sector * 512
+000183r 2  85 rr        	sta	MMCaddr0
+000185r 2  A5 rr        	lda	sector0
+000187r 2  0A           	asl	a
+000188r 2  85 rr        	sta	MMCaddr1
+00018Ar 2  A5 rr        	lda	sector1
+00018Cr 2  2A           	rol	a
+00018Dr 2  85 rr        	sta	MMCaddr2
+00018Fr 2  A5 rr        	lda	sector2
+000191r 2  2A           	rol	a
+000192r 2  85 rr        	sta	MMCaddr3
+000194r 2               
+000194r 2  20 rr rr     	jsr	mmc_cs_l
+000197r 2  A9 58        	lda	#$58
+000199r 2  85 rr        	sta	MMCcmd		; WRITE_SINGLE_BLOCK command
+00019Br 2  20 rr rr     	jsr	MMC_send_command
+00019Er 2  09 00        	ora	#0
+0001A0r 2  D0 2C        	bne	mmcwr1
+0001A2r 2               
+0001A2r 2  A9 FE        	lda	#$FE
+0001A4r 2  20 2D FF     	jsr	spibyte		; send data tokem
+0001A7r 2               
+0001A7r 2  A0 00        	ldy	#0		; 256 bytes from low buffer
+0001A9r 2  20 rr rr     	jsr	spiwr
+0001ACr 2  E6 05        	inc	ptr1+1
+0001AEr 2  20 rr rr     	jsr	spiwr		; 256 bytes from high buffer
+0001B1r 2  C6 05        	dec	ptr1+1
+0001B3r 2  A9 FF        	lda	#$ff		; send a dummy CRC-16
+0001B5r 2  20 2D FF     	jsr	spibyte
+0001B8r 2  A9 FF        	lda	#$ff
+0001BAr 2  20 2D FF     	jsr	spibyte
+0001BDr 2  A9 FF        	lda	#$ff
+0001BFr 2  20 2D FF     	jsr	spibyte		; response
+0001C2r 2  A9 FF        mmcwr2:	lda	#$ff
+0001C4r 2  20 2D FF     	jsr	spibyte		; wait while busy (response==0)
+0001C7r 2  F0 F9        	beq	mmcwr2
+0001C9r 2  20 rr rr     	jsr	mmc_cs_h
+0001CCr 2  18           	clc
+0001CDr 2  60           	rts
+0001CEr 2               
+0001CEr 2  20 rr rr     mmcwr1: jsr	mmc_cs_h
+0001D1r 2  38           fatie:	sec
+0001D2r 2  60           	rts
+0001D3r 2               ; ------------------------------------------------------------------------
+0001D3r 2               ; ------------------------------------------------------------------------
+0001D3r 2               ; 			FAT-16 Filesystem
+0001D3r 2               ; ------------------------------------------------------------------------
+0001D3r 2               ; ------------------------------------------------------------------------
+0001D3r 2               ; FAT_init: locates filesystem partition, read parameters and offsets
+0001D3r 2               ; returns CY=1 if something went wrong
+0001D3r 2               
+0001D3r 2               	.export	FAT_init
+0001D3r 2               FAT_init:
+0001D3r 2  A9 00        	lda	#0
+0001D5r 2  85 rr        	sta	sector0		; read partition table (sector 0)
+0001D7r 2  85 rr        	sta	sector1
+0001D9r 2  85 rr        	sta	sector2
+0001DBr 2  A9 rr        	lda	#<fatbuf	; destination buffer
+0001DDr 2  85 04        	sta	ptr1
+0001DFr 2  A9 rr        	lda	#>fatbuf
+0001E1r 2  85 05        	sta	ptr1+1
+0001E3r 2  20 rr rr     	jsr	mmc_rd_sector
+0001E6r 2  B0 E9        	bcs	fatie
+0001E8r 2               
+0001E8r 2  AD rr rr     fati0:	lda	fatbuf+$1c6	; save filesystem offset (only 24 bits)
+0001EBr 2  85 rr        	sta	sector0		; the MSB byte is always 0
+0001EDr 2  85 rr        	sta	FAT
+0001EFr 2  AD rr rr     	lda	fatbuf+$1c7
+0001F2r 2  85 rr        	sta	sector1
+0001F4r 2  85 rr        	sta	FAT+1
+0001F6r 2  AD rr rr     	lda	fatbuf+$1c8
+0001F9r 2  85 rr        	sta	sector2
+0001FBr 2  85 rr        	sta	FAT+2
+0001FDr 2               
+0001FDr 2  20 rr rr     fati00:	jsr	mmc_rd_sector	; read superblock
+000200r 2  B0 CF        	bcs	fatie
+000202r 2               
+000202r 2  18           	clc			; FAT = offset to FAT (in sectors)
+000203r 2  AD rr rr     	lda	fatbuf+14	; FAT = offset to partition + reserved sectors
+000206r 2  65 rr        	adc	FAT
+000208r 2  85 rr        	sta	FAT
+00020Ar 2  AD rr rr     	lda	fatbuf+15
+00020Dr 2  65 rr        	adc	FAT+1
+00020Fr 2  85 rr        	sta	FAT+1
+000211r 2  90 02        	bcc	fati4
+000213r 2  E6 rr        	inc	FAT+2
+000215r 2  A5 rr        fati4:	lda	FAT
+000217r 2  85 rr        	sta	FATrootsec	; offset to root directory
+000219r 2  A5 rr        	lda	FAT+1		; FATrootsec = offset to FAT + sectors/FAT*nFAT
+00021Br 2  85 rr        	sta	FATrootsec+1
+00021Dr 2  A5 rr        	lda	FAT+2
+00021Fr 2  85 rr        	sta	FATrootsec+2
+000221r 2               
+000221r 2  AD rr rr     	lda	fatbuf+22
+000224r 2  85 00        	sta	tmp1		; tmp1,tmp2: sectors/FAT
+000226r 2  AD rr rr     	lda	fatbuf+23
+000229r 2  85 01        	sta	tmp2
+00022Br 2  AD rr rr     	lda	fatbuf+16
+00022Er 2  85 02        	sta	tmp3		; tmp3: nfat
+000230r 2               
+000230r 2               	; multiply and accumulate
+000230r 2  46 02        fati1:	lsr	tmp3		; nfat*sectors_per_fat
+000232r 2  90 11        	bcc	fati2
+000234r 2  18           	clc
+000235r 2  A5 00        	lda	tmp1
+000237r 2  65 rr        	adc	FATrootsec
+000239r 2  85 rr        	sta	FATrootsec
+00023Br 2  A5 01        	lda	tmp2
+00023Dr 2  65 rr        	adc	FATrootsec+1
+00023Fr 2  85 rr        	sta	FATrootsec+1
+000241r 2  90 02        	bcc	fati2
+000243r 2  E6 rr        	inc	FATrootsec+2
+000245r 2  06 00        fati2:	asl	tmp1
+000247r 2  26 01        	rol	tmp2
+000249r 2  A5 02        	lda	tmp3
+00024Br 2  D0 E3        	bne	fati1
+00024Dr 2               
+00024Dr 2  AD rr rr     	lda	fatbuf+13
+000250r 2  85 rr        	sta	FATsecperclus	; Parameter: sectors / cluster
+000252r 2               
+000252r 2  AD rr rr     	lda	fatbuf+17	; number of root entries (32 bytes/entry)
+000255r 2  85 rr        	sta	FATnrootsec	; FATnrootsec: number of sectors of root
+000257r 2  AD rr rr     	lda	fatbuf+18	; FATnrootsec = number of root entries / 16
+00025Ar 2  4A           	lsr	a
+00025Br 2  66 rr        	ror	FATnrootsec
+00025Dr 2  4A           	lsr	a
+00025Er 2  66 rr        	ror	FATnrootsec
+000260r 2  4A           	lsr	a
+000261r 2  66 rr        	ror	FATnrootsec
+000263r 2  4A           	lsr	a
+000264r 2  66 rr        	ror	FATnrootsec
+000266r 2  85 rr        	sta	FATnrootsec+1
+000268r 2               
+000268r 2  A9 00        	lda	#0		; Init other variables
+00026Ar 2  85 rr        	sta	dircluster	; Current directory: root
+00026Cr 2  85 rr        	sta	dircluster+1
+00026Er 2  85 rr        	sta	FileFlags	; No EOF
+000270r 2  18           	clc
+000271r 2  60           	rts
+000272r 2               
+000272r 2               
+000272r 2               ; -------------------------------------------------------------------------------
+000272r 2               ; FAT_search_dir: search for a file in the current directory
+000272r 2               ; Arguments: ptr2: pointer to a 11-character filename (name spaces ext)
+000272r 2               ; returns CY=1 if not found, else cluster, sector, Filesize and sectorcnt are set
+000272r 2               ; modifies A, X, Y, tmp[1,2], ptr1, sector, cluster, sectorcnt, MMCcmd
+000272r 2               
+000272r 2               	.export	FAT_search_dir
+000272r 2               FAT_search_dir:
+000272r 2  20 rr rr     	jsr	setupdir
+000275r 2               
+000275r 2  A9 rr        fsd1:	lda	#<fatbuf	; Read from file to FAT buffer
+000277r 2  85 04        	sta	ptr1
+000279r 2  A9 rr        	lda	#>fatbuf
+00027Br 2  85 05        	sta	ptr1+1
+00027Dr 2  20 rr rr     	jsr	read_sector_from_file
+000280r 2  B0 3A        	bcs	fsd9		; No more clusters -> return
+000282r 2               
+000282r 2  A2 10        	ldx	#16		; Dir entries per sector
+000284r 2  A9 rr        	lda	#>fatbuf	; restore ptr1 ("read_sector_from_file" adds 512 to it)
+000286r 2  85 05        	sta	ptr1+1
+000288r 2               
+000288r 2  A0 0A        fatsd2:	ldy	#10		; 11-char filename
+00028Ar 2  B1 06        fatsd3:	lda	(ptr2),y	; filename comparison
+00028Cr 2  D1 04        	cmp	(ptr1),y
+00028Er 2  D0 1C        	bne	fatsd4
+000290r 2  88           	dey
+000291r 2  10 F7        	bpl	fatsd3
+000293r 2               
+000293r 2               fatsd10:
+000293r 2  A0 1A        	ldy	#26		; FOUND: save file data
+000295r 2  B1 04        pru1:	lda	(ptr1),y	; cluster & Filesize (total: 6 bytes)
+000297r 2  99 rr rr     	sta	cluster-26,y
+00029Ar 2  C8           	iny
+00029Br 2  C0 20        	cpy	#(26+6)
+00029Dr 2  D0 F6        	bne	pru1
+00029Fr 2  20 rr rr     	jsr	FAT_clus2sec
+0002A2r 2  A5 rr        	lda	FATsecperclus
+0002A4r 2  85 rr        	sta	sectorcnt
+0002A6r 2  A9 00        	lda	#0
+0002A8r 2  85 rr        	sta	FileFlags
+0002AAr 2  18           	clc
+0002ABr 2  60           	rts
+0002ACr 2               
+0002ACr 2  A9 20        fatsd4:	lda	#32		; next directoy entry
+0002AEr 2  18           	clc
+0002AFr 2  65 04        	adc	ptr1
+0002B1r 2  85 04        	sta	ptr1
+0002B3r 2  90 02        	bcc	fatsd5
+0002B5r 2  E6 05        	inc	ptr1+1
+0002B7r 2  CA           fatsd5:	dex
+0002B8r 2  D0 CE        	bne	fatsd2
+0002BAr 2  F0 B9        	beq	fsd1		; next sector of directory
+0002BCr 2               
+0002BCr 2  38           fsd9:	sec			; NOT FOUND
+0002BDr 2  60           	rts
+0002BEr 2               
+0002BEr 2               ; ------------------------------------------------------------------------
+0002BEr 2               ;  Chose the right directory to scan
+0002BEr 2               ; ------------------------------------------------------------------------
+0002BEr 2               
+0002BEr 2               setupdir:
+0002BEr 2  A5 rr        	lda	dircluster	; Root dir or subdir?
+0002C0r 2  05 rr        	ora	dircluster+1
+0002C2r 2  D0 17        	bne	stdir1
+0002C4r 2               
+0002C4r 2  A5 rr        	lda	FATrootsec	; Root dir: emulate file read
+0002C6r 2  85 rr        	sta	sector0		; first sector
+0002C8r 2  A5 rr        	lda	FATrootsec+1
+0002CAr 2  85 rr        	sta	sector1
+0002CCr 2  A5 rr        	lda	FATrootsec+2
+0002CEr 2  85 rr        	sta	sector2
+0002D0r 2  A5 rr        	lda	FATnrootsec	; # of sectors (<256)
+0002D2r 2  85 rr        	sta	sectorcnt
+0002D4r 2  A9 00        	lda	#0
+0002D6r 2  85 rr        	sta	cluster		; #cluster 0 (no following clusters)
+0002D8r 2  85 rr        	sta	cluster+1
+0002DAr 2  60           	rts
+0002DBr 2               
+0002DBr 2  A5 rr        stdir1:	lda	dircluster	; Start reading from subdir
+0002DDr 2  85 rr        	sta	cluster
+0002DFr 2  A5 rr        	lda	dircluster+1
+0002E1r 2  85 rr        	sta	cluster+1
+0002E3r 2  20 rr rr     	jsr	FAT_clus2sec
+0002E6r 2  A5 rr        	lda	FATsecperclus
+0002E8r 2  85 rr        	sta	sectorcnt
+0002EAr 2  60           	rts
+0002EBr 2               
+0002EBr 2               ; -------------------------------------------------------------------------------
+0002EBr 2               ; FAT_list_dir: list current directory
+0002EBr 2               ; -------------------------------------------------------------------------------
+0002EBr 2               
+0002EBr 2               	.export	FAT_list_dir
+0002EBr 2               FAT_list_dir:
+0002EBr 2  20 rr rr     	jsr	setupdir
+0002EEr 2               
+0002EEr 2  A9 rr        fld1:	lda	#<fatbuf	; Read from file to FAT buffer
+0002F0r 2  85 04        	sta	ptr1
+0002F2r 2  A9 rr        	lda	#>fatbuf
+0002F4r 2  85 05        	sta	ptr1+1
+0002F6r 2  20 rr rr     	jsr	read_sector_from_file
+0002F9r 2  B0 5C        	bcs	fld9		; No more clusters -> return
+0002FBr 2               
+0002FBr 2  A2 10        	ldx	#16		; Dir entries per sector
+0002FDr 2  A9 rr        	lda	#>fatbuf	; restore ptr1 ("read_sector_from_file" adds 512 to it)
+0002FFr 2  85 05        	sta	ptr1+1
+000301r 2               
+000301r 2  A0 0B        fld2:	ldy	#11
+000303r 2  B1 04        	lda	(ptr1),y
+000305r 2  85 00        	sta	tmp1		; save a copy of attributes
+000307r 2  C9 0F        	cmp	#$0f		; Long filename extension -> ignore
+000309r 2  F0 3C        	beq	fld4
+00030Br 2  A0 00        	ldy	#0
+00030Dr 2  B1 04        	lda	(ptr1),y
+00030Fr 2  F0 46        	beq	fld9		; 0 -> directory end
+000311r 2  C9 E5        	cmp	#$e5		; deleted entry -> ignore
+000313r 2  F0 32        	beq	fld4
+000315r 2  A9 10        	lda	#$10
+000317r 2  25 00        	and	tmp1		; subdir?
+000319r 2  F0 04        	beq	fld25
+00031Br 2  A9 2F        	lda	#'/'
+00031Dr 2  D0 02        	bne	fld26
+00031Fr 2  A9 20        fld25:	lda	#' '
+000321r 2  20 24 FF     fld26:	jsr	cout
+000324r 2               
+000324r 2  B1 04        fld3:	lda	(ptr1),y	; filename printing
+000326r 2  20 24 FF     	jsr	cout
+000329r 2  C8           	iny
+00032Ar 2  C0 0B        	cpy	#11		; up to 11 bytes
+00032Cr 2  D0 F6        	bne	fld3
+00032Er 2  A9 09        	lda	#9
+000330r 2  20 24 FF     	jsr	cout
+000333r 2               
+000333r 2  A0 1C        	ldy	#28		; print Filelength
+000335r 2  B1 04        fld35:	lda	(ptr1),y
+000337r 2  99 E4 FF     	sta	-28,y		; stored in tmp1 to tmp4 (ZP addresses 0 to 3)
+00033Ar 2  C8           	iny
+00033Br 2  C0 20        	cpy	#32
+00033Dr 2  D0 F6        	bne	fld35
+00033Fr 2  20 rr rr     	jsr	prtn32
+000342r 2  A9 0A        	lda	#10
+000344r 2  20 24 FF     	jsr	cout
+000347r 2               
+000347r 2  A9 20        fld4:	lda	#32		; next directory entry
+000349r 2  18           	clc
+00034Ar 2  65 04        	adc	ptr1
+00034Cr 2  85 04        	sta	ptr1
+00034Er 2  90 02        	bcc	fld5
+000350r 2  E6 05        	inc	ptr1+1
+000352r 2  CA           fld5:	dex
+000353r 2  D0 AC        	bne	fld2
+000355r 2  F0 97        	beq	fld1		; next sector of directory
+000357r 2               
+000357r 2  38           fld9:	sec			; NOT FOUND
+000358r 2  60           	rts
+000359r 2               
+000359r 2               ; ------------------------------------------------------------------------
+000359r 2               ; cluster to sector
+000359r 2               ; ------------------------------------------------------------------------
+000359r 2               ; arguments: cluster,cluster+1
+000359r 2               ; result: sector0,1,2
+000359r 2               
+000359r 2               	.export	FAT_clus2sec
+000359r 2               FAT_clus2sec:
+000359r 2  A5 rr        	lda	cluster		; tmp1:2:3 = cluster-2
+00035Br 2  38           	sec
+00035Cr 2  E9 02        	sbc	#2
+00035Er 2  85 00        	sta	tmp1
+000360r 2  A5 rr        	lda	cluster+1
+000362r 2  E9 00        	sbc	#0
+000364r 2  85 01        	sta	tmp2
+000366r 2  A9 00        	lda	#0
+000368r 2  85 02        	sta	tmp3
+00036Ar 2               
+00036Ar 2  18           	clc
+00036Br 2  A5 rr        	lda	FATrootsec	; offset to root + number of root sectors
+00036Dr 2  65 rr        	adc	FATnrootsec
+00036Fr 2  85 rr        	sta	sector0
+000371r 2  A5 rr        	lda	FATrootsec+1
+000373r 2  65 rr        	adc	FATnrootsec+1
+000375r 2  85 rr        	sta	sector1
+000377r 2  A5 rr        	lda	FATrootsec+2
+000379r 2  69 00        	adc	#0
+00037Br 2  85 rr        	sta	sector2
+00037Dr 2               
+00037Dr 2  A5 rr        	lda	FATsecperclus
+00037Fr 2  85 03        	sta	tmp4
+000381r 2               	; multiply and accumulate ( sector += sectors_per_cluster * (cluster-2) )
+000381r 2  D0 19        	bne	fatsd11		; always taken
+000383r 2               fatsd13:
+000383r 2  18           	clc
+000384r 2  A5 00        	lda	tmp1
+000386r 2  65 rr        	adc	sector0
+000388r 2  85 rr        	sta	sector0
+00038Ar 2  A5 01        	lda	tmp2
+00038Cr 2  65 rr        	adc	sector1
+00038Er 2  85 rr        	sta	sector1
+000390r 2  A5 02        	lda	tmp3
+000392r 2  65 rr        	adc	sector2
+000394r 2  85 rr        	sta	sector2
+000396r 2               fatsd12:
+000396r 2  06 00        	asl	tmp1
+000398r 2  26 01        	rol	tmp2
+00039Ar 2  26 02        	rol	tmp3
+00039Cr 2               fatsd11:
+00039Cr 2  46 03        	lsr	tmp4
+00039Er 2  B0 E3        	bcs	fatsd13
+0003A0r 2  D0 F4        	bne	fatsd12
+0003A2r 2               
+0003A2r 2  60           	rts	; returns: sector=(cluster-2)*FATsecperclus
+0003A3r 2               
+0003A3r 2               ; ------------------------------------------------------------------------
+0003A3r 2               ; Search the next cluster from FAT table
+0003A3r 2               ; ------------------------------------------------------------------------
+0003A3r 2               ; arguments: cluster,cluster+1
+0003A3r 2               ; result: cluster,cluster+1, CY=1 if no more clusters in the current chain
+0003A3r 2               ; modiffies A,X,Y, ptr1, sector
+0003A3r 2               
+0003A3r 2               	.export FAT_next_cluster
+0003A3r 2               FAT_next_cluster:
+0003A3r 2  A9 rr        	lda	#<fatbuf	; temporary buffer
+0003A5r 2  85 04        	sta	ptr1
+0003A7r 2  A9 rr        	lda	#>fatbuf
+0003A9r 2  85 05        	sta	ptr1+1
+0003ABr 2               
+0003ABr 2  18           	clc
+0003ACr 2  A5 rr        	lda	FAT		; sector = FAT + cluster/256
+0003AEr 2  65 rr        	adc	cluster+1
+0003B0r 2  85 rr        	sta	sector0
+0003B2r 2  A5 rr        	lda	FAT+1
+0003B4r 2  69 00        	adc	#0
+0003B6r 2  85 rr        	sta	sector1
+0003B8r 2  A5 rr        	lda	FAT+2
+0003BAr 2  69 00        	adc	#0
+0003BCr 2  85 rr        	sta	sector2
+0003BEr 2  20 rr rr     	jsr	mmc_rd_sector
+0003C1r 2               
+0003C1r 2  A5 rr        	lda	cluster
+0003C3r 2  0A           	asl	a		; 2 byte per cluster (FAT-16)
+0003C4r 2  AA           	tax
+0003C5r 2  B0 0C        	bcs	fatnc1
+0003C7r 2  BD rr rr     	lda	fatbuf,x	; First half of sector (256 bytes)
+0003CAr 2  85 rr        	sta	cluster
+0003CCr 2  BD rr rr     	lda	fatbuf+1,x
+0003CFr 2  85 rr        	sta	cluster+1
+0003D1r 2  90 0A        	bcc	fatnc2		; always taken
+0003D3r 2  BD rr rr     fatnc1:	lda	fatbuf+$100,x	; Second half of sector (256 bytes)
+0003D6r 2  85 rr        	sta	cluster
+0003D8r 2  BD rr rr     	lda	fatbuf+$101,x
+0003DBr 2  85 rr        	sta	cluster+1
+0003DDr 2               fatnc2:
+0003DDr 2  A9 0F        	lda	#$0f		; if cluster=$FFFx returns CY=1
+0003DFr 2  05 rr        	ora	cluster
+0003E1r 2  C9 FF        	cmp	#$ff
+0003E3r 2  D0 08        	bne	fatnc3
+0003E5r 2  A5 rr        	lda	cluster+1
+0003E7r 2  C9 FF        	cmp	#$ff
+0003E9r 2  D0 02        	bne	fatnc3
+0003EBr 2  38           	sec
+0003ECr 2  60           	rts
+0003EDr 2  18           fatnc3:	clc
+0003EEr 2  60           bsdff:	rts
+0003EFr 2               
+0003EFr 2               ;-----------------------------------------------------------------
+0003EFr 2               ;	Sequential reading from file
+0003EFr 2               ;-----------------------------------------------------------------
+0003EFr 2               ;	returns CY active if no more clusters available
+0003EFr 2               ;	Sets FileFlags.7 if the size of the file is exceeded
+0003EFr 2               
+0003EFr 2               read_sector_from_file:
+0003EFr 2               
+0003EFr 2  A5 rr        	lda	sectorcnt	; No more sectors in the cluster?
+0003F1r 2  D0 18        	bne	rsff1
+0003F3r 2  A5 rr        	lda	FATsecperclus
+0003F5r 2  85 rr        	sta	sectorcnt
+0003F7r 2  A5 05        	lda	ptr1+1		; save destination pointer
+0003F9r 2  48           	pha
+0003FAr 2  A5 04        	lda	ptr1
+0003FCr 2  48           	pha
+0003FDr 2  20 rr rr     	jsr	FAT_next_cluster
+000400r 2  68           	pla			; restore pointer
+000401r 2  85 04        	sta	ptr1
+000403r 2  68           	pla
+000404r 2  85 05        	sta	ptr1+1
+000406r 2  B0 4C        	bcs	rts2		; error from FAT_next_cluster
+000408r 2  20 rr rr     	jsr	FAT_clus2sec
+00040Br 2               
+00040Br 2  20 rr rr     rsff1:	jsr	mmc_rd_sector	; read it
+00040Er 2  B0 44        	bcs	rts2
+000410r 2               
+000410r 2  E6 05        	inc	ptr1+1		; ptr1 += 512
+000412r 2  E6 05        	inc	ptr1+1
+000414r 2  C6 rr        	dec	sectorcnt
+000416r 2  E6 rr        	inc	sector
+000418r 2  D0 06        	bne	rsff2
+00041Ar 2  E6 rr        	inc	sector+1
+00041Cr 2  D0 02        	bne	rsff2
+00041Er 2  E6 rr        	inc	sector+2
+000420r 2  38           rsff2:	sec			; Filesize-=512
+000421r 2  A5 rr        	lda	Filesize+1
+000423r 2  E9 02        	sbc	#2
+000425r 2  85 rr        	sta	Filesize+1
+000427r 2  A5 rr        	lda	Filesize+2
+000429r 2  E9 00        	sbc	#0
+00042Br 2  85 rr        	sta	Filesize+2
+00042Dr 2  A5 rr        	lda	Filesize+3
+00042Fr 2  E9 00        	sbc	#0
+000431r 2  85 rr        	sta	Filesize+3
+000433r 2  30 0C        	bmi	rsff3		; Filesize negative -> set EOF
+000435r 2  A5 rr        	lda	Filesize
+000437r 2  05 rr        	ora	Filesize+1
+000439r 2  05 rr        	ora	Filesize+2
+00043Br 2  05 rr        	ora	Filesize+3
+00043Dr 2  F0 02        	beq	rsff3		; Filesize = 0 -> end
+00043Fr 2  18           	clc
+000440r 2  60           	rts
+000441r 2               
+000441r 2  A9 80        rsff3:	lda	#$80
+000443r 2  85 rr        	sta	FileFlags
+000445r 2  18           	clc
+000446r 2  60           	rts
+000447r 2               
+000447r 2               ;-----------------------------------------------------------------
+000447r 2               ;	change to a directory
+000447r 2               ;-----------------------------------------------------------------
+000447r 2               ; ptr2: directory name (11 chars)
+000447r 2               ; returns CY active if not found
+000447r 2               
+000447r 2               FAT_chdir:
+000447r 2  20 rr rr     	jsr	FAT_search_dir
+00044Ar 2  B0 08        	bcs	rts2
+00044Cr 2  A5 rr        	lda	cluster
+00044Er 2  85 rr        	sta	dircluster
+000450r 2  A5 rr        	lda	cluster+1
+000452r 2  85 rr        	sta	dircluster+1
+000454r 2  60           rts2:	rts
+000455r 2               
+000455r 2               ;-----------------------------------------------------------------
+000455r 2               ;		SD bootloader
+000455r 2               ;-----------------------------------------------------------------
+000455r 2               execfile:
+000455r 2  20 rr rr     	jsr	FAT_search_dir
+000458r 2  B0 FA        	bcs	rts2
+00045Ar 2               
+00045Ar 2  A9 rr        	lda	#<fatbuf	; first, read a single sector to the buffer
+00045Cr 2  85 04        	sta	ptr1
+00045Er 2  A9 rr        	lda	#>fatbuf
+000460r 2  85 05        	sta	ptr1+1
+000462r 2  20 rr rr     	jsr	read_sector_from_file
+000465r 2  B0 ED        	bcs	rts2
+000467r 2               
+000467r 2  AD rr rr     	lda	fatbuf		; check for mark: $B0,$CA
+00046Ar 2  C9 B0        	cmp	#$B0
+00046Cr 2  D0 E6        	bne	rts2
+00046Er 2  AD rr rr     	lda	fatbuf+1
+000471r 2  C9 CA        	cmp	#$CA
+000473r 2  D0 DF        	bne	rts2
+000475r 2               
+000475r 2  A2 18        	ldx	#(msgldx-msgs)
+000477r 2  20 rr rr     	jsr	uputs
+00047Ar 2               
+00047Ar 2  38           	sec			; loadaddr-=8 to skip header
+00047Br 2  AD rr rr     	lda	fatbuf+2	; save load address and exec. address
+00047Er 2  E9 08        	sbc	#8
+000480r 2  85 04        	sta	ptr1
+000482r 2  AD rr rr     	lda	fatbuf+3
+000485r 2  E9 00        	sbc	#0
+000487r 2  85 05        	sta	ptr1+1
+000489r 2  AD rr rr     	lda	fatbuf+4
+00048Cr 2  85 06        	sta	ptr2
+00048Er 2  AD rr rr     	lda	fatbuf+5
+000491r 2  85 07        	sta	ptr2+1
+000493r 2               
+000493r 2  A0 08        	ldy	#8	; copy first sector (without header) to its destination address
+000495r 2  B9 rr rr     bsd2:	lda	fatbuf,y
+000498r 2  91 04        	sta	(ptr1),y
+00049Ar 2  C8           	iny
+00049Br 2  D0 F8        	bne	bsd2
+00049Dr 2  E6 05        	inc	ptr1+1
+00049Fr 2  B9 rr rr     bsd3:	lda	fatbuf+256,y
+0004A2r 2  91 04        	sta	(ptr1),y
+0004A4r 2  C8           	iny
+0004A5r 2  D0 F8        	bne	bsd3
+0004A7r 2  E6 05        	inc	ptr1+1
+0004A9r 2               				; read the rest of the file
+0004A9r 2  20 rr rr     bsd4:	jsr	read_sector_from_file
+0004ACr 2  B0 12        	bcs	bsdf
+0004AEr 2  24 rr        	bit	FileFlags	; repeat until EOF
+0004B0r 2  10 F7        	bpl	bsd4
+0004B2r 2               
+0004B2r 2  A5 07        bsdd:	lda	ptr2+1		; execute if exec address >= $300
+0004B4r 2  C9 03        	cmp	#3
+0004B6r 2  90 08        	bcc	bsdf
+0004B8r 2  A2 1E        	ldx	#(msgexe-msgs)	; notify execution on UART
+0004BAr 2  20 rr rr     	jsr	uputs
+0004BDr 2  6C 06 00     	jmp	(ptr2)
+0004C0r 2               
+0004C0r 2  60           bsdf:	rts
+0004C1r 2               
+0004C1r 2               
+0004C1r 2               
+0004C1r 1               ;----------------------------------------------------
+0004C1r 1               toupper:
+0004C1r 1  A2 00        	ldx	#0
+0004C3r 1  BD rr rr     tu1:	lda	fatbuf,x
+0004C6r 1  F0 10        	beq	turts
+0004C8r 1  C9 61        	cmp	#'a'
+0004CAr 1  90 06        	bcc	tu2
+0004CCr 1  C9 7B        	cmp	#'z'+1
+0004CEr 1  B0 02        	bcs	tu2
+0004D0r 1  29 DF        	and	#$DF
+0004D2r 1               tu2:	;jsr	cout
+0004D2r 1  9D rr rr     	sta	fatbuf,x
+0004D5r 1  E8           	inx
+0004D6r 1  D0 EB        	bne	tu1
+0004D8r 1  60           turts:	rts
+0004D9r 1               ;----------------------------------------------------
+0004D9r 1               padname:
+0004D9r 1  A2 00        	ldx	#0
+0004DBr 1  86 00        	stx	tmp1
+0004DDr 1               
+0004DDr 1  E8           pn1:	inx
+0004DEr 1  BD rr rr     	lda	fatbuf,x
+0004E1r 1  F0 F5        	beq	turts
+0004E3r 1  C9 20        	cmp	#' '
+0004E5r 1  F0 F6        	beq	pn1
+0004E7r 1  A0 00        	ldy	#0
+0004E9r 1  BD rr rr     pn2:	lda	fatbuf,x
+0004ECr 1  F0 2B        	beq	pn3
+0004EEr 1  C9 2E        	cmp	#'.'
+0004F0r 1  D0 12        	bne	pn5
+0004F2r 1  24 00        	bit	tmp1
+0004F4r 1  10 0E        	bpl	pn5
+0004F6r 1  E8           	inx
+0004F7r 1  A9 20        	lda	#' '
+0004F9r 1  C0 08        pn6:	cpy	#8
+0004FBr 1  B0 EC        	bcs	pn2
+0004FDr 1  99 rr rr     	sta	filename,y
+000500r 1               	;jsr	cout
+000500r 1  C8           	iny
+000501r 1  4C rr rr     	jmp	pn6
+000504r 1  C9 20        pn5:	cmp	#' '
+000506r 1  F0 11        	beq	pn3
+000508r 1  99 rr rr     	sta	filename,y
+00050Br 1               	;jsr	cout
+00050Br 1  C9 2E        	cmp	#'.'
+00050Dr 1  F0 04        	beq	pn55
+00050Fr 1  A9 80        	lda	#$80
+000511r 1  85 00        	sta	tmp1
+000513r 1  E8           pn55:	inx
+000514r 1  C8           	iny
+000515r 1  C0 0B        	cpy	#11
+000517r 1  D0 D0        	bne	pn2
+000519r 1  A9 20        pn3:	lda	#' '
+00051Br 1  C0 0B        pn4:	cpy	#11
+00051Dr 1  F0 B9        	beq	turts
+00051Fr 1  99 rr rr     	sta	filename,y
+000522r 1               	;jsr	cout
+000522r 1  C8           	iny
+000523r 1  4C rr rr     	jmp	pn4
+000526r 1               ;----------------------------------------------------
+000526r 1               doscmd:
+000526r 1  A2 24        dcl0:	ldx	#(msgdprt-msgs)
+000528r 1  20 rr rr     	jsr	uputs
+00052Br 1  A9 rr        	lda	#<fatbuf
+00052Dr 1  85 04        	sta	ptr1
+00052Fr 1  A9 rr        	lda	#>fatbuf
+000531r 1  85 05        	sta	ptr1+1
+000533r 1  20 rr rr     	jsr	cgets
+000536r 1  20 rr rr     	jsr	toupper
+000539r 1  A9 0A        	lda	#10
+00053Br 1  20 24 FF     	jsr	cout
+00053Er 1               
+00053Er 1  20 rr rr     	jsr	padname
+000541r 1  A9 rr        	lda	#<filename
+000543r 1  85 06        	sta	ptr2
+000545r 1  A9 rr        	lda	#>filename
+000547r 1  85 07        	sta	ptr2+1
+000549r 1               
+000549r 1  AD rr rr     	lda	fatbuf
+00054Cr 1  C9 44        	cmp	#'D'
+00054Er 1  D0 06        	bne	dcl1
+000550r 1  20 rr rr     	jsr	FAT_list_dir
+000553r 1  4C rr rr     	jmp	dcl0
+000556r 1               
+000556r 1  C9 43        dcl1:	cmp	#'C'
+000558r 1  D0 14        	bne	dcl2
+00055Ar 1  20 rr rr     	jsr	FAT_chdir
+00055Dr 1  A2 06        dcl6:	ldx	#(msgok-msgs)
+00055Fr 1  90 02        	bcc	dcl4
+000561r 1  A2 00        dcl7:	ldx	#(msgerr-msgs)
+000563r 1  20 rr rr     dcl4:	jsr	uputs
+000566r 1  A9 0A        	lda	#10
+000568r 1  20 24 FF     	jsr	cout
+00056Br 1  4C rr rr     	jmp	dcl0
+00056Er 1               
+00056Er 1  C9 51        dcl2:	cmp	#'Q'
+000570r 1  D0 01        	bne	dcl3
+000572r 1  60           	rts
+000573r 1               
+000573r 1  C9 52        dcl3:	cmp	#'R'
+000575r 1  D0 0B        	bne	dcl5
+000577r 1  20 rr rr     	jsr	mmc_init
+00057Ar 1  B0 E5        	bcs	dcl7
+00057Cr 1  20 rr rr     	jsr	FAT_init
+00057Fr 1  4C rr rr     	jmp	dcl6
+000582r 1               
+000582r 1  C9 54        dcl5:	cmp	#'T'
+000584r 1  D0 31        	bne	dcl11
+000586r 1  20 rr rr     	jsr	FAT_search_dir
+000589r 1  B0 D6        	bcs	dcl7
+00058Br 1  A9 rr        dcl8:	lda	#<fatbuf
+00058Dr 1  85 04        	sta	ptr1
+00058Fr 1  A9 rr        	lda	#>fatbuf
+000591r 1  85 05        	sta	ptr1+1
+000593r 1  20 rr rr     	jsr	read_sector_from_file
+000596r 1  B0 C9        	bcs	dcl7
+000598r 1  A9 rr        	lda	#>fatbuf
+00059Ar 1  85 05        	sta	ptr1+1
+00059Cr 1  A0 00        	ldy	#0
+00059Er 1  B9 rr rr     dcl9:	lda	fatbuf,y
+0005A1r 1  20 24 FF     	jsr	cout
+0005A4r 1  C8           	iny
+0005A5r 1  D0 F7        	bne	dcl9
+0005A7r 1  B9 rr rr     dcl10:	lda	fatbuf+256,y
+0005AAr 1  20 24 FF     	jsr	cout
+0005ADr 1  C8           	iny
+0005AEr 1  D0 F7        	bne	dcl10
+0005B0r 1  24 rr        	bit	FileFlags
+0005B2r 1  10 D7        	bpl	dcl8
+0005B4r 1  4C rr rr     	jmp	dcl0
+0005B7r 1               
+0005B7r 1  C9 58        dcl11:	cmp	#'X'
+0005B9r 1  D0 08        	bne	dcl12
+0005BBr 1  20 rr rr     	jsr	execfile
+0005BEr 1  A9 0A        	lda	#10
+0005C0r 1  20 24 FF     	jsr	cout
+0005C3r 1               
+0005C3r 1  4C rr rr     dcl12:	jmp	dcl0
+0005C6r 1               
+0005C6r 1               ; ------------------------------------------------------------------------
+0005C6r 1               	.export	uputs
+0005C6r 1  20 24 FF     upt1:	jsr	cout
+0005C9r 1  E8           	inx
+0005CAr 1  BD rr rr     uputs:	lda	msgs,x
+0005CDr 1  D0 F7        	bne	upt1
+0005CFr 1  60           	rts
+0005D0r 1               
+0005D0r 1               ; ------------------------------------------------------------------------
+0005D0r 1               ; number printing routines (32-bits)
+0005D0r 1               ; ------------------------------------------------------------------------
+0005D0r 1               ; tmp1-tmp4: data to be printed (return as zero)
+0005D0r 1               ; X,Y preserved. A modiffied
+0005D0r 1  8A           prtn32:	txa
+0005D1r 1  48           	pha
+0005D2r 1  98           	tya
+0005D3r 1  48           	pha
+0005D4r 1  A0 00        	ldy	#0
+0005D6r 1               prn1:
+0005D6r 1               	;------------- divide tmp1-tmp4 by 10. Remainder result in A
+0005D6r 1  A2 20        	ldx	#32
+0005D8r 1  A9 00        	lda	#0
+0005DAr 1  06 00        dv1:	asl	tmp1
+0005DCr 1  26 01        	rol	tmp2
+0005DEr 1  26 02        	rol	tmp3
+0005E0r 1  26 03        	rol	tmp4
+0005E2r 1  2A           	rol	a
+0005E3r 1  C9 0A        	cmp	#10
+0005E5r 1  90 04        	bcc	dv2
+0005E7r 1  E9 0A        	sbc	#10
+0005E9r 1  E6 00        	inc	tmp1
+0005EBr 1  CA           dv2:	dex
+0005ECr 1  D0 EC        	bne	dv1
+0005EEr 1               	;-------------
+0005EEr 1  18           	clc
+0005EFr 1  69 30        	adc	#'0'
+0005F1r 1  48           	pha
+0005F2r 1  C8           	iny
+0005F3r 1  A5 00        	lda	tmp1
+0005F5r 1  05 01        	ora	tmp2
+0005F7r 1  05 02        	ora	tmp3
+0005F9r 1  05 03        	ora	tmp4
+0005FBr 1  D0 D9        	bne	prn1
+0005FDr 1               	;-------------
+0005FDr 1  68           prn2:	pla
+0005FEr 1  20 24 FF     	jsr	cout
+000601r 1  88           	dey
+000602r 1  D0 F9        	bne	prn2
+000604r 1  68           	pla
+000605r 1  A8           	tay
+000606r 1  68           	pla
+000607r 1  AA           	tax
+000608r 1  60           	rts
+000609r 1               
+000609r 1               ; ------------------------------------------------------------------------
+000609r 1               ; uart_gets: gets a line with some editing
+000609r 1               ; arguments: ptr1 = pointer to destination data buffer
+000609r 1               ; output: A, X, Y modiffied
+000609r 1               
+000609r 1               cgets:
+000609r 1  A0 00        	ldy 	#0
+00060Br 1  20 27 FF     uags1:	jsr 	cin
+00060Er 1  C9 0A        	cmp 	#$A		; Ignore CR
+000610r 1  F0 F9        	beq 	uags1
+000612r 1  C9 0D        	cmp 	#$D		; End of Line
+000614r 1  D0 05        	bne 	uags2
+000616r 1  A9 00        	lda 	#0
+000618r 1  91 04        	sta 	(ptr1),y
+00061Ar 1  60           	rts
+00061Br 1  C9 7F        uags2:	cmp 	#$7F		; Backspace
+00061Dr 1  D0 17        	bne 	uags3
+00061Fr 1  C0 00        	cpy	#0
+000621r 1  F0 E8        	beq 	uags1
+000623r 1  88           	dey
+000624r 1  A9 08        	lda	#8		; one position back
+000626r 1  20 24 FF     	jsr	cout
+000629r 1  A9 20        	lda	#32		; erase old character by writing a space
+00062Br 1  20 24 FF     	jsr	cout
+00062Er 1  A9 08        	lda	#8		; one position back again
+000630r 1  20 24 FF     	jsr	cout
+000633r 1  4C rr rr     	jmp	uags1
+000636r 1  91 04        uags3:	sta 	(ptr1),y
+000638r 1  20 24 FF     	jsr	cout	; echo
+00063Br 1  C8           	iny
+00063Cr 1  4C rr rr     	jmp 	uags1
+00063Fr 1               	.export	msgs
+00063Fr 1               msgs:
+00063Fr 1  45 72 72 6F  msgerr:		.asciiz "Error"
+000643r 1  72 00        
+000645r 1  4F 4B 00     msgok:		.asciiz "OK"
+000648r 1  53 44 20 6F  msgSD:		.asciiz "SD ok "
+00064Cr 1  6B 20 00     
+00064Fr 1  46 41 54 20  msgFAT:		.asciiz "FAT ok "
+000653r 1  6F 6B 20 00  
+000657r 1  2E 6C 6F 61  msgldx:		.asciiz ".load"
+00065Br 1  64 00        
+00065Dr 1  2E 65 78 65  msgexe:		.asciiz ".exe "
+000661r 1  20 00        
+000663r 1  72 64 63 74  msgdprt:	.asciiz "rdctx>"
+000667r 1  78 3E 00     
+00066Ar 1               
+00066Ar 1               endcode:
+00066Ar 1               
+00066Ar 1               
+00066Ar 1               ; ------------------------------------------------------------------------
+00066Ar 1               ; ------------------------------------------------------------------------
+00066Ar 1               ; 				DATA & BSS
+00066Ar 1               ; ------------------------------------------------------------------------
+00066Ar 1               ; ------------------------------------------------------------------------
+00066Ar 1               
+00066Ar 1               .bss
+000000r 1               	.export	fatbuf,filename
+000000r 1  xx xx xx xx  	fatbuf:		.res	512	; buffer for FAT operations
+000004r 1  xx xx xx xx  
+000008r 1  xx xx xx xx  
+000200r 1  xx xx xx xx  	filename:	.res 	11	; DOS file names
+000204r 1  xx xx xx xx  
+000208r 1  xx xx xx     
+00020Br 1               
+00020Br 1               
+00020Br 1               
+00020Br 1               
+00020Br 1               
+00020Br 1               
+00020Br 1               

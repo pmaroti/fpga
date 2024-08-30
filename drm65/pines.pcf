@@ -1,0 +1,99 @@
+# Master clock (16MHz)
+
+set_io CLKIN 21
+
+# UART. TXD out, RXD in
+
+set_io TXD 80
+set_io RXD 79
+
+# VGA
+
+set_io HSYN 38
+set_io VSYN 39
+
+set_io R[0] 62
+set_io R[1] 61
+set_io R[2] 60
+set_io R[3] 56
+
+set_io G[0] 52
+set_io G[1] 49
+set_io G[2] 48
+set_io G[3] 47
+
+set_io B[0] 45
+set_io B[1] 44
+set_io B[2] 43
+set_io B[3] 42
+
+# External SRAM XD: data, XA: address
+
+set_io XD[0] 90
+set_io XD[1] 88
+set_io XD[2] 87
+set_io XD[3] 81
+set_io XD[4] 97
+set_io XD[5] 98
+set_io XD[6] 99
+set_io XD[7] 101
+set_io XD[8] 116
+set_io XD[9] 117
+set_io XD[10] 118
+set_io XD[11] 119
+set_io XD[12] 120
+set_io XD[13] 138
+set_io XD[14] 137
+set_io XD[15] 136
+
+set_io XA[0] 91
+set_io XA[1] 93
+set_io XA[2] 94
+set_io XA[3] 95
+set_io XA[4] 96
+set_io XA[5] 121
+set_io XA[6] 122
+set_io XA[7] 128
+set_io XA[8] 115
+set_io XA[9] 114
+set_io XA[10] 113
+set_io XA[11] 112
+set_io XA[12] 107
+set_io XA[13] 106
+set_io XA[14] 105
+set_io XA[15] 104
+
+set_io XWE 102	# write enable
+set_io XOE 129	# read enable
+
+set_io XBHE 134 # High byte enable
+set_io XBLE	135 # Low byte enable
+
+# Input & Output registers
+
+set_io PINOUT[0] 28	# LED
+set_io PINOUT[1] 29	# LED
+set_io PINOUT[2] 33	# LED
+set_io PINOUT[3] 34	# LED
+set_io PINOUT[4] 75	# /CS for SD card
+set_io PINOUT[5] 71	# /CS for SPI flash
+set_io PINOUT[6] 70 # SCK
+set_io PINOUT[7] 67 # MOSI
+
+set_io -pullup yes PININ[0] 9	# Joystick
+set_io -pullup yes PININ[1] 10	# Joystick
+set_io -pullup yes PININ[2] 11	# Joystick
+set_io -pullup yes PININ[3] 12	# Joystick
+set_io -pullup yes PININ[4] 19	# Joystick
+set_io -pullup yes PININ[5] 25	# Joystick
+set_io -pullup yes PININ[6] 24	# Joystick
+set_io -pullup yes PININ[7] 68	# MISO
+
+# AUDIO
+
+set_io PWM 144
+
+# Keyboard
+
+set_io -pullup yes KCLK 32 
+set_io -pullup yes KDAT 31

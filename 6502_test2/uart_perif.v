@@ -11,7 +11,7 @@ module uart_perif(
   output wire test_pin
 );
 
-  localparam DELAY_FRAMES = 234; // 27,000,000 (27Mhz) / 115200 Baud rate
+  localparam DELAY_FRAMES = 235; // 27,000,000 (27Mhz) / 115200 Baud rate
 
   localparam IDLE = 3'd0,
              START = 3'd1,
@@ -39,31 +39,18 @@ module uart_perif(
   assign DO = (CS_o) ? uart_output : 8'bz;
   assign tx_pin = tx_pinReg;
   assign test_pin = busy;
-
-/*
-  always @(negedge clk) begin
-    if (CS) begin
-      if (WE && ~busy) begin // we can send if Tx is not busy
-        uart_tx_byte <= DI;
-        to_send <= 1;  // 0->1 means something to send
-      end 
-    end else begin
-       to_send <= 0;
-    end
-  end
-*/
   
   always @(negedge clk) begin
     if (CS) begin
       case ({WE,AB})
         2'b10: begin
-          if (~busy) begin
+          if (~busy) begin // try to use ! instead of ~
             uart_tx_byte <= DI;
             to_send <= 1;
           end
         end
         2'b01: begin
-          uart_output <= {7'b000000,busy};
+          uart_output <= {7'b0000_000,busy};
         end
       endcase
     end else begin

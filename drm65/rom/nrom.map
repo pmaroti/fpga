@@ -1,0 +1,97 @@
+Modules list:
+-------------
+nrom.o:
+    CODE              Offs = 000000   Size = 001E04
+    RODATA            Offs = 000000   Size = 000000
+    BSS               Offs = 000000   Size = 000018
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000000   Size = 00001D
+    NULL              Offs = 000000   Size = 000000
+    INIT              Offs = 000000   Size = 000000
+    JUMPT             Offs = 000000   Size = 000030
+    VECTORS           Offs = 000000   Size = 000006
+
+
+Segment list:
+-------------
+Name                  Start   End     Size
+--------------------------------------------
+NULL                  000000  000000  000000
+ZEROPAGE              000000  00001C  00001D
+BSS                   000200  000217  000018
+DATA                  000200  000200  000000
+CODE                  00E000  00FE03  001E04
+INIT                  00FE04  00FE04  000000
+RODATA                00FE04  00FE04  000000
+JUMPT                 00FF00  00FF2F  000030
+VECTORS               00FFFA  00FFFF  000006
+
+
+Exports list:
+-------------
+__BSS_LOAD__              000200  LA    __BSS_RUN__               000200  LA    
+__BSS_SIZE__              000018  EA    _irqbrk                   00ED68  LA    
+_start                    00F4DB  LA    brkp                      000013  LZ    
+cgets                     00F81A  LA    cin                       00F781  LA    
+cinflg                    000011  LZ    clrline                   00E97C  LA    
+clrpixel                  00ED04  LA    clrrest                   00E9A4  LA    
+cls                       00E959  LA    cout                      00F495  LA    
+cputs                     00F814  LA    dissaOP                   00F89F  LA    
+endtxt                    00FE04  LA    endzp                     00001D  LZ    
+font6x8                   00E610  LA    font8x16                  00E010  LA    
+gputch                    00EC00  LA    gputchpos                 00E9B5  LA    
+gputs                     00EC9B  LA    hsynvec                   00020E  LA    
+msgs                      00FC33  LA    putpixel4                 00ED1A  LA    
+setpixel                  00ECFA  LA    tglpixel                  00ED10  LA    
+tposx                     00000F  LZ    tposy                     000010  LZ    
+uart_getch                00F773  LA    uart_putchar              00F48C  LA    
+uputs                     00F80A  LA    urxd                      000012  LZ    
+urxvec                    000208  LA    utxvec                    00020A  LA    
+vectorhIRQBRK             00FFFE  LA    vectorhNMI                00FFFA  LA    
+vectorhRES                00FFFC  LA    vsynvec                   00020C  LA    
+
+
+
+Imports list:
+-------------
+__BSS_LOAD__ ([linker generated]):
+__BSS_RUN__ ([linker generated]):
+__BSS_SIZE__ ([linker generated]):
+_irqbrk (nrom.o):
+_start (nrom.o):
+brkp (nrom.o):
+cgets (nrom.o):
+cin (nrom.o):
+cinflg (nrom.o):
+clrline (nrom.o):
+clrpixel (nrom.o):
+clrrest (nrom.o):
+cls (nrom.o):
+cout (nrom.o):
+cputs (nrom.o):
+dissaOP (nrom.o):
+endtxt (nrom.o):
+endzp (nrom.o):
+font6x8 (nrom.o):
+font8x16 (nrom.o):
+gputch (nrom.o):
+gputchpos (nrom.o):
+gputs (nrom.o):
+hsynvec (nrom.o):
+msgs (nrom.o):
+putpixel4 (nrom.o):
+setpixel (nrom.o):
+tglpixel (nrom.o):
+tposx (nrom.o):
+tposy (nrom.o):
+uart_getch (nrom.o):
+uart_putchar (nrom.o):
+uputs (nrom.o):
+urxd (nrom.o):
+urxvec (nrom.o):
+utxvec (nrom.o):
+vectorhIRQBRK (nrom.o):
+vectorhNMI (nrom.o):
+vectorhRES (nrom.o):
+vsynvec (nrom.o):
+

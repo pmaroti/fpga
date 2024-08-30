@@ -4,6 +4,7 @@ module test_6502(
   output clk_o,
   output uartTx
 );
+
   reg reset=1;
   wire [15:0] AB;
   wire [7:0] DI;
@@ -100,8 +101,9 @@ module test_6502(
 
   `ifndef TEST
   //localparam CLKDIV = 1350000;
-  localparam CLKDIV = 23400;
-  //ocalparam CLKDIV = 13;
+  //localparam CLKDIV = 23400;
+  localparam CLKDIV = 50000;
+  //localparam CLKDIV = 13;
   `endif 
 
   `ifdef TEST

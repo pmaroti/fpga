@@ -1,0 +1,74 @@
+Modules list:
+-------------
+dos.o:
+    CODE              Offs = 000000   Size = 00066A
+    RODATA            Offs = 000000   Size = 000000
+    BSS               Offs = 000000   Size = 00020B
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000000   Size = 00001C
+    NULL              Offs = 000000   Size = 000000
+
+
+Segment list:
+-------------
+Name                  Start   End     Size
+--------------------------------------------
+NULL                  000000  000000  000000
+ZEROPAGE              0000E0  0000FB  00001C
+BSS                   00D6F4  00D8FE  00020B
+DATA                  00D6F4  00D6F4  000000
+CODE                  00D8F8  00DF61  00066A
+RODATA                00DF62  00DF62  000000
+
+
+Exports list:
+-------------
+FAT                       0000E9  LZ    FAT_clus2sec              00DC51  LA    
+FAT_init                  00DACB  LA    FAT_list_dir              00DBE3  LA    
+FAT_next_cluster          00DC9B  LA    FAT_search_dir            00DB6A  LA    
+FATnrootsec               0000ED  LZ    FATrootsec                0000EF  LZ    
+FATsecperclus             0000EC  LZ    Filesize                  0000F6  LZ    
+MMC_send_command          00D96B  LA    MMCcmd                    0000E0  LZ    
+__BSS_LOAD__              00D6F4  LA    __BSS_RUN__               00D6F4  LA    
+__BSS_SIZE__              00020B  EA    cluster                   0000F4  LZ    
+dircluster                0000F2  LZ    fatbuf                    00D6F4  LA    
+filename                  00D8F4  LA    mmc_cs_h                  00D962  LA    
+mmc_cs_l                  00D957  LA    mmc_init                  00D98E  LA    
+mmc_rd_sector             00DA2F  LA    mmc_wr_sector             00DA79  LA    
+msgs                      00DF37  LA    sector                    0000E6  LZ    
+spird                     00D92E  LA    spiwr                     00D91F  LA    
+uputs                     00DEC2  LA    
+
+
+Imports list:
+-------------
+FAT (dos.o):
+FAT_clus2sec (dos.o):
+FAT_init (dos.o):
+FAT_list_dir (dos.o):
+FAT_next_cluster (dos.o):
+FAT_search_dir (dos.o):
+FATnrootsec (dos.o):
+FATrootsec (dos.o):
+FATsecperclus (dos.o):
+Filesize (dos.o):
+MMC_send_command (dos.o):
+MMCcmd (dos.o):
+__BSS_LOAD__ ([linker generated]):
+__BSS_RUN__ ([linker generated]):
+__BSS_SIZE__ ([linker generated]):
+cluster (dos.o):
+dircluster (dos.o):
+fatbuf (dos.o):
+filename (dos.o):
+mmc_cs_h (dos.o):
+mmc_cs_l (dos.o):
+mmc_init (dos.o):
+mmc_rd_sector (dos.o):
+mmc_wr_sector (dos.o):
+msgs (dos.o):
+sector (dos.o):
+spird (dos.o):
+spiwr (dos.o):
+uputs (dos.o):
+

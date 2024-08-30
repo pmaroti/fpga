@@ -1,0 +1,38 @@
+
+EhBASIC LOAD and SAVE notes
+
+The quickest and easiest way to save the program is to do this …
+
+Type LIST but not the return ..
+Set your terminal program to ASCII capture..
+Hit return to start the LIST command..
+Once the list is complete stop the ASCII capture.
+
+To load the program back there are two possible, similar, ways.
+
+If your hardware supports hardware handshake properly just select the listing and use ASCII send to transfer it (You’ll need to edit the ‘Ready’ prompt from the end of the listing).
+
+If your hardware doesn’t support hardware handshaking then you’ll need to paste a number of SPACE characters at the start of each line to give the interpreter enough time to tokenise the previous line. The number of spaces depends on two things, how fast your processor is and how fast the serial link is. The faster the processor the fewer spaces, the faster the serial link the more spaces. Otherwise just do as above.
+
+(Alternately edit the NULL command to insert $20’s instead of $00’s into the start of each line and do ..
+NULL n
+LIST
+NULL 0
+when you save the list)
+
+If you want to save the program as binary you should save (Smeml) to (Svarl)-1.
+
+If you want to save the program as ASCII you should redirect the character output vector to write to your filesystem and then call LIST. Doing this can also allow you to specify line numbers or ranges as with LIST. The output vector should be restored and the file closed when LIST returns or an error is encountered.
+
+To load a binary program start loading it at (Smeml) and set (Svarl) to the last address + 1 then call LAB_1477 to clear the variables and reset the execution pointer. An easy way to do the first part is by copying (Smeml) to (Svarl) and using (Svarl) as a post incremented save pointer. If there is a chance that the program has been relocated it’s probably a good idea to rebuild the line pointer chain.
+
+To load an ASCII program redirect the character input vector to read from your filesystem and return to the main interpreter loop. The input vector should be restored and the file closed when the file end is reached or an error is encountered.
+
+I prefer ASCII format as it’s far more portable, easier to manipulate and can include direct commands and comment lines that aren’t saved to memory.
+
+Is there an easy way to support a filename in the LOAD and save COMMANDs, and get access to that from my code? Right now I am prompting the user for it.
+
+Call the evaluate following expression routine, LAB_EVEZ, and look for a string by testing if the data type flag, Dtypef, is negative. If it is the string descriptor is on the descriptor stack so don’t forget to pop it off there by calling LAB_22B6 once you’re done with it.
+
+Look at Jeff Trantor’s implemention of LOAD and SAVE for the Apple 1 with a CFFA1 and for the OSI C1P via the serial line.
+

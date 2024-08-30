@@ -1,0 +1,54 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Thu Feb  1 11:10:37 2024
+[*]
+[dumpfile] "/home/jesari/raspcloud/FPGA/SIMRETRO/drm65/tb.vcd"
+[dumpfile_mtime] "Thu Feb  1 11:09:16 2024"
+[dumpfile_size] 1339519
+[savefile] "/home/jesari/raspcloud/FPGA/SIMRETRO/drm65/tb.gtkw"
+[timestart] 0
+[size] 1678 706
+[pos] 0 97
+*-5.637936 1958 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb.
+[treeopen] tb.sys.
+[sst_width] 223
+[signals_width] 182
+[sst_expanded] 1
+[sst_vpaned_height] 189
+@28
+tb.sys.clk
+tb.sys.vrd
+@22
+tb.sys.cpu1.PC[15:0]
+@c00022
+tb.sys.ca[15:0]
+@28
+(0)tb.sys.ca[15:0]
+(1)tb.sys.ca[15:0]
+(2)tb.sys.ca[15:0]
+(3)tb.sys.ca[15:0]
+(4)tb.sys.ca[15:0]
+(5)tb.sys.ca[15:0]
+(6)tb.sys.ca[15:0]
+(7)tb.sys.ca[15:0]
+(8)tb.sys.ca[15:0]
+(9)tb.sys.ca[15:0]
+(10)tb.sys.ca[15:0]
+(11)tb.sys.ca[15:0]
+(12)tb.sys.ca[15:0]
+(13)tb.sys.ca[15:0]
+(14)tb.sys.ca[15:0]
+(15)tb.sys.ca[15:0]
+@1401200
+-group_end
+@22
+tb.sys.cdo[7:0]
+tb.sys.cdi[7:0]
+@28
+tb.sys.cpu1.WE
+tb.sys.xwe
+@820
+tb.sys.cpu1.statename[47:0]
+[pattern_trace] 1
+[pattern_trace] 0

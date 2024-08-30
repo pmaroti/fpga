@@ -1,0 +1,6 @@
+all:	snd.bin
+
+snd.bin:	snd.asm
+	../../../../proy/bender/xa-2.3.5/xa $< -o $@
+	cp $@ ../../snd
+

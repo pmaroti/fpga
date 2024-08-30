@@ -1,0 +1,775 @@
+Modules list:
+-------------
+crt0.o:
+    CODE              Offs = 000000   Size = 00002A
+    RODATA            Offs = 000000   Size = 000000
+    BSS               Offs = 000000   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000000   Size = 000018
+    NULL              Offs = 000000   Size = 000000
+tetris.o:
+    CODE              Offs = 00002A   Size = 0010FC
+    RODATA            Offs = 000000   Size = 0001A0
+    BSS               Offs = 000000   Size = 0002F2
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(crt0.o):
+    CODE              Offs = 001126   Size = 000000
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F2   Size = 000002
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+    TAPEHDR           Offs = 000000   Size = 00000E
+    STARTUP           Offs = 000000   Size = 000042
+    ZPSAVE            Offs = 000000   Size = 00001A
+/usr/local/lib/cc65/lib/atmos.lib(zerobss.o):
+    CODE              Offs = 001126   Size = 000000
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+    INIT              Offs = 000000   Size = 000023
+/usr/local/lib/cc65/lib/atmos.lib(add.o):
+    CODE              Offs = 001126   Size = 00001A
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(addysp.o):
+    CODE              Offs = 001140   Size = 00000E
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(aslax2.o):
+    CODE              Offs = 00114E   Size = 00000B
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(aslax3.o):
+    CODE              Offs = 001159   Size = 00000E
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(aslax4.o):
+    CODE              Offs = 001167   Size = 000011
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(asrax2.o):
+    CODE              Offs = 001178   Size = 00000F
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(asrax4.o):
+    CODE              Offs = 001187   Size = 000019
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(bneg.o):
+    CODE              Offs = 0011A0   Size = 00000E
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000000
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(callmain.o):
+    CODE              Offs = 0011AE   Size = 000017
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F4   Size = 000004
+    DATA              Offs = 000000   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(condes.o):
+    CODE              Offs = 0011C5   Size = 00000C
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000000   Size = 000025
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+    INIT              Offs = 000023   Size = 00000C
+/usr/local/lib/cc65/lib/atmos.lib(decsp2.o):
+    CODE              Offs = 0011D1   Size = 00000D
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(decsp3.o):
+    CODE              Offs = 0011DE   Size = 00000D
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(decsp4.o):
+    CODE              Offs = 0011EB   Size = 00000D
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(decsp5.o):
+    CODE              Offs = 0011F8   Size = 00000D
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(decsp6.o):
+    CODE              Offs = 001205   Size = 00000D
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(div.o):
+    CODE              Offs = 001212   Size = 000018
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(icmp.o):
+    CODE              Offs = 00122A   Size = 00002E
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(incsp1.o):
+    CODE              Offs = 001258   Size = 000007
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(incsp2.o):
+    CODE              Offs = 00125F   Size = 000016
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(incsp4.o):
+    CODE              Offs = 001275   Size = 000005
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(incsp5.o):
+    CODE              Offs = 00127A   Size = 000005
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(incsp7.o):
+    CODE              Offs = 00127F   Size = 000005
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(ladd.o):
+    CODE              Offs = 001284   Size = 000025
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(land.o):
+    CODE              Offs = 0012A9   Size = 000024
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(ldai.o):
+    CODE              Offs = 0012CD   Size = 00000C
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(linc.o):
+    CODE              Offs = 0012D9   Size = 000011
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(lmul.o):
+    CODE              Offs = 0012EA   Size = 00005C
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(lpush.o):
+    CODE              Offs = 001346   Size = 00001E
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(lsave.o):
+    CODE              Offs = 001364   Size = 00001C
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(mod.o):
+    CODE              Offs = 001380   Size = 000014
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(mul.o):
+    CODE              Offs = 001394   Size = 000045
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(mul8.o):
+    CODE              Offs = 0013D9   Size = 00003A
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(mulax5.o):
+    CODE              Offs = 001413   Size = 000014
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(neg.o):
+    CODE              Offs = 001427   Size = 00000E
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(popsreg.o):
+    CODE              Offs = 001435   Size = 000010
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(pusha.o):
+    CODE              Offs = 001445   Size = 000016
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(pushax.o):
+    CODE              Offs = 00145B   Size = 00001A
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(shelp.o):
+    CODE              Offs = 001475   Size = 00001E
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(staspidx.o):
+    CODE              Offs = 001493   Size = 000016
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(staxsp.o):
+    CODE              Offs = 0014A9   Size = 00000B
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(sub.o):
+    CODE              Offs = 0014B4   Size = 000015
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(subysp.o):
+    CODE              Offs = 0014C9   Size = 00000D
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(udiv.o):
+    CODE              Offs = 0014D6   Size = 00004F
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+/usr/local/lib/cc65/lib/atmos.lib(umod.o):
+    CODE              Offs = 001525   Size = 000011
+    RODATA            Offs = 0001A0   Size = 000000
+    BSS               Offs = 0002F8   Size = 000000
+    DATA              Offs = 000025   Size = 000000
+    ZEROPAGE          Offs = 000018   Size = 000000
+    NULL              Offs = 000000   Size = 000000
+
+
+Segment list:
+-------------
+Name                  Start   End     Size
+--------------------------------------------
+NULL                  000000  000000  000000
+ZEROPAGE              000030  000047  000018
+ZPSAVE                000048  000061  00001A
+CODE                  000300  001835  001536
+RODATA                001836  0019D5  0001A0
+STARTUP               0019D6  001A17  000042
+TAPEHDR               001A18  001A25  00000E
+INIT                  001A26  001A54  00002F
+DATA                  001A55  001A79  000025
+BSS                   001A7A  001D71  0002F8
+
+
+Exports list:
+-------------
+__BSS_LOAD__              001A7A RLA    __BSS_RUN__               001A7A RLA    
+__BSS_SIZE__              0002F8 REA    __CONSTRUCTOR_COUNT__     000000 REZ    
+__CONSTRUCTOR_TABLE__     000000 REZ    __DESTRUCTOR_COUNT__      000000 REZ    
+__DESTRUCTOR_TABLE__      000000 REZ    __INTERRUPTOR_COUNT__     000000  EZ    
+__INTERRUPTOR_TABLE__     000000  EZ    __RAM_SIZE__              000000 REZ    
+__RAM_START__             000000 REZ    __STARTUP__               000001 REA    
+__argc                    001D6E  LA    __argv                    001D70  LA    
+_campo                    001A7A  LA    _cinnb                    00031D RLA    
+_cls                      000327 RLA    _cout                     0003E5  LA    
+_cuad                     00186E  LA    _cuadro                   000621  LA    
+_delay16m                 000589  LA    _display                  000B3C  LA    
+_exit                     001A00  LA    _init                     0009F8  LA    
+_init_pt                  00032A  LA    _main                     000D07 RLA    
+_oldc                     001BCA  LA    _pieza                    001D1A  LA    
+_piezas                   001D2A  LA    _posx                     001D6A  LA    
+_posy                     001D6B  LA    _prtnum                   0005D7  LA    
+_ptab                     001836  LA    _puts                     000555  LA    
+_rand                     00038D  LA    _rota                     00085C  LA    
+_start                    000300  LA    _testpos                  0006F7  LA    
+_txtx                     001D68  LA    _txty                     001D69  LA    
+_xp                       001D62  LA    _yp                       001D63  LA    
+addysp                    001441 RLA    addysp1                   001440 RLA    
+aslax2                    00144E RLA    aslax3                    001459 RLA    
+aslax4                    001467 RLA    asrax2                    001478 RLA    
+asrax4                    001487 RLA    bnega                     0014A4 RLA    
+bnegax                    0014A0  LA    callmain                  0014AE RLA    
+condes                    001A55  LA    decsp2                    0014D1 RLA    
+decsp3                    0014DE RLA    decsp4                    0014EB RLA    
+decsp5                    0014F8 RLA    decsp6                    001505 RLA    
+donelib                   0014C5 RLA    inceaxy                   0015D9 RLA    
+incsp1                    001558 RLA    incsp2                    001567 RLA    
+incsp4                    001575 RLA    incsp5                    00157A RLA    
+incsp7                    00157F RLA    initlib                   001A49 RLA    
+ldaidx                    0015CD RLA    mul8x16                   0016DB RLA    
+mul8x16a                  0016E6 RLA    mulax5                    001713 RLA    
+negax                     001727 RLA    popax                     00155F RLA    
+popsargs                  001775 RLA    popsreg                   001735 RLA    
+ptr1                      000036 RLZ    ptr2                      000038  LZ    
+ptr3                      00003A RLZ    ptr4                      00003C RLZ    
+push0                     00175B RLA    push0ax                   001646 RLA    
+pusha                     001749 RLA    pusha0                    00175D RLA    
+pusha0sp                  001745  LA    pushax                    00175F RLA    
+pushaysp                  001747  LA    pusheax                   00164C RLA    
+regbank                   000042 RLZ    regsave                   000034 RLZ    
+resteax                   001673 RLA    saveeax                   001664 RLA    
+shlax2                    00144E RLA    shlax3                    001459 RLA    
+shlax4                    001467 RLA    sp                        000030 RLZ    
+sreg                      000032 RLZ    staspidx                  001793 RLA    
+stax0sp                   0017A9 RLA    staxysp                   0017AB RLA    
+subysp                    0017C9 RLA    tmp1                      00003E RLZ    
+tmp2                      00003F RLZ    tmp3                      000040 RLZ    
+tmp4                      000041 RLZ    tosadd0ax                 001584 RLA    
+tosadda0                  001426  LA    tosaddax                  001428 RLA    
+tosaddeax                 00158A  LA    tosand0ax                 0015A9  LA    
+tosandeax                 0015AF RLA    tosdiva0                  001512 RLA    
+tosdivax                  001514  LA    tosicmp                   00152C RLA    
+tosicmp0                  00152A  LA    tosmoda0                  001680 RLA    
+tosmodax                  001682  LA    tosmul0ax                 0015EA  LA    
+tosmula0                  0016D9  LA    tosmulax                  001694  LA    
+tosmuleax                 0015F0  LA    tossuba0                  0017B4  LA    
+tossubax                  0017B6 RLA    tosudiva0                 0017D6 RLA    
+tosudivax                 0017D8  LA    tosumoda0                 001825 RLA    
+tosumodax                 001827  LA    tosumul0ax                0015EA  LA    
+tosumula0                 0016D9  LA    tosumulax                 001694 RLA    
+tosumuleax                0015F0 RLA    udiv16                    0017E7 RLA    
+zerobss                   001A26 RLA    zpspace                   000018  EZ    
+
+
+
+Imports list:
+-------------
+__BSS_LOAD__ ([linker generated]):
+    crt0.o                    crt0.s(11)
+__BSS_RUN__ ([linker generated]):
+    zerobss.o                 zerobss.s(8)
+__BSS_SIZE__ ([linker generated]):
+    zerobss.o                 zerobss.s(8)
+__CONSTRUCTOR_COUNT__ (crt0.o):
+    condes.o                  condes.s(18)
+__CONSTRUCTOR_TABLE__ (crt0.o):
+    condes.o                  condes.s(18)
+__DESTRUCTOR_COUNT__ (crt0.o):
+    condes.o                  condes.s(19)
+__DESTRUCTOR_TABLE__ (crt0.o):
+    condes.o                  condes.s(19)
+__INTERRUPTOR_COUNT__ (crt0.o):
+__INTERRUPTOR_TABLE__ (crt0.o):
+__RAM_SIZE__ (crt0.o):
+    crt0.o                    crt0.s(11)
+__RAM_START__ (crt0.o):
+    crt0.o                    crt0.s(11)
+__STARTUP__ (crt0.o):
+    tetris.o                  tetris.s(12)
+__argc (callmain.o):
+__argv (callmain.o):
+_campo (tetris.o):
+_cinnb (crt0.o):
+    tetris.o                  tetris.s(25)
+_cls (crt0.o):
+    tetris.o                  tetris.s(26)
+_cout (tetris.o):
+_cuad (tetris.o):
+_cuadro (tetris.o):
+_delay16m (tetris.o):
+_display (tetris.o):
+_exit (crt0.o):
+_init (tetris.o):
+_init_pt (tetris.o):
+_main (tetris.o):
+    callmain.o                callmain.s(11)
+    crt0.o                    crt0.s(10)
+_oldc (tetris.o):
+_pieza (tetris.o):
+_piezas (tetris.o):
+_posx (tetris.o):
+_posy (tetris.o):
+_prtnum (tetris.o):
+_ptab (tetris.o):
+_puts (tetris.o):
+_rand (tetris.o):
+_rota (tetris.o):
+_start (crt0.o):
+_testpos (tetris.o):
+_txtx (tetris.o):
+_txty (tetris.o):
+_xp (tetris.o):
+_yp (tetris.o):
+addysp (addysp.o):
+    incsp7.o                  incsp7.s(8)
+    incsp5.o                  incsp5.s(8)
+    incsp4.o                  incsp4.s(8)
+    tetris.o                  tetris.s(1105)
+    tetris.o                  tetris.s(1626)
+    tetris.o                  tetris.s(3410)
+addysp1 (addysp.o):
+    sub.o                     sub.s(8)
+    lmul.o                    lmul.s(8)
+    land.o                    land.s(8)
+    ladd.o                    ladd.s(8)
+aslax2 (aslax2.o):
+    tetris.o                  tetris.s(1298)
+    tetris.o                  tetris.s(1400)
+    tetris.o                  tetris.s(1800)
+    tetris.o                  tetris.s(2003)
+    tetris.o                  tetris.s(2455)
+aslax3 (aslax3.o):
+    tetris.o                  tetris.s(2444)
+aslax4 (aslax4.o):
+    tetris.o                  tetris.s(1260)
+    tetris.o                  tetris.s(1663)
+    tetris.o                  tetris.s(1905)
+    tetris.o                  tetris.s(2935)
+asrax2 (asrax2.o):
+    tetris.o                  tetris.s(665)
+asrax4 (asrax4.o):
+    tetris.o                  tetris.s(664)
+bnega (bneg.o):
+    tetris.o                  tetris.s(2814)
+bnegax (bneg.o):
+callmain (callmain.o):
+    crt0.o                    crt0.s(10)
+condes (condes.o):
+decsp2 (decsp2.o):
+    tetris.o                  tetris.s(2605)
+decsp3 (decsp3.o):
+    tetris.o                  tetris.s(2112)
+    tetris.o                  tetris.s(2431)
+decsp4 (decsp4.o):
+    lpush.o                   lpush.s(11)
+decsp5 (decsp5.o):
+    tetris.o                  tetris.s(431)
+decsp6 (decsp6.o):
+    tetris.o                  tetris.s(565)
+    tetris.o                  tetris.s(965)
+donelib (condes.o):
+    crt0.o                    crt0.s(9)
+    crt0.o                    crt0.s(8)
+inceaxy (linc.o):
+    tetris.o                  tetris.s(876)
+incsp1 (incsp1.o):
+    tetris.o                  tetris.s(852)
+    tetris.o                  tetris.s(948)
+incsp2 (incsp2.o):
+    staspidx.o                staspidx.s(8)
+    popsreg.o                 popsreg.s(8)
+    tetris.o                  tetris.s(816)
+    tetris.o                  tetris.s(1846)
+incsp4 (incsp4.o):
+    tetris.o                  tetris.s(1349)
+incsp5 (incsp5.o):
+    tetris.o                  tetris.s(450)
+    tetris.o                  tetris.s(2146)
+incsp7 (incsp7.o):
+    tetris.o                  tetris.s(791)
+initlib (condes.o):
+    crt0.o                    crt0.s(9)
+    crt0.o                    crt0.s(8)
+ldaidx (ldai.o):
+    tetris.o                  tetris.s(1947)
+mul8x16 (mul8.o):
+    mul.o                     mul.s(8)
+mul8x16a (mul8.o):
+    mul.o                     mul.s(8)
+mulax5 (mulax5.o):
+    tetris.o                  tetris.s(581)
+negax (neg.o):
+    shelp.o                   shelp.s(11)
+    mod.o                     mod.s(11)
+    div.o                     div.s(11)
+popax (incsp2.o):
+    shelp.o                   shelp.s(11)
+popsargs (shelp.o):
+    mod.o                     mod.s(11)
+    div.o                     div.s(11)
+popsreg (popsreg.o):
+    umod.o                    umod.s(8)
+    udiv.o                    udiv.s(8)
+    mul8.o                    mul8.s(9)
+    mul.o                     mul.s(9)
+ptr1 (crt0.o):
+    umod.o                    umod.s(9)
+    udiv.o                    udiv.s(9)
+    staspidx.o                staspidx.s(9)
+    mulax5.o                  mulax5.s(8)
+    mod.o                     mod.s(12)
+    lmul.o                    lmul.s(9)
+    ldai.o                    ldai.s(8)
+    zerobss.o                 zerobss.s(9)
+    tetris.o                  tetris.s(10)
+ptr2 (crt0.o):
+ptr3 (crt0.o):
+    lmul.o                    lmul.s(9)
+ptr4 (crt0.o):
+    umod.o                    umod.s(9)
+    udiv.o                    udiv.s(9)
+    shelp.o                   shelp.s(12)
+    mul8.o                    mul8.s(10)
+    mul.o                     mul.s(10)
+    lmul.o                    lmul.s(9)
+    linc.o                    linc.s(8)
+push0 (pushax.o):
+    crt0.o                    crt0.s(9)
+push0ax (lpush.o):
+    tetris.o                  tetris.s(537)
+pusha (pusha.o):
+    tetris.o                  tetris.s(831)
+    tetris.o                  tetris.s(916)
+    tetris.o                  tetris.s(1123)
+    tetris.o                  tetris.s(1367)
+    tetris.o                  tetris.s(1644)
+    tetris.o                  tetris.s(1864)
+    tetris.o                  tetris.s(2200)
+pusha0 (pushax.o):
+    tetris.o                  tetris.s(603)
+    tetris.o                  tetris.s(911)
+    tetris.o                  tetris.s(2619)
+pusha0sp (pusha.o):
+pushax (pushax.o):
+    callmain.o                callmain.s(11)
+    tetris.o                  tetris.s(465)
+    tetris.o                  tetris.s(578)
+    tetris.o                  tetris.s(926)
+    tetris.o                  tetris.s(1059)
+    tetris.o                  tetris.s(1466)
+    tetris.o                  tetris.s(1697)
+    tetris.o                  tetris.s(1956)
+    tetris.o                  tetris.s(2351)
+pushaysp (pusha.o):
+pusheax (lpush.o):
+    tetris.o                  tetris.s(508)
+regbank (crt0.o):
+    tetris.o                  tetris.s(10)
+regsave (crt0.o):
+    lsave.o                   lsave.s(8)
+    tetris.o                  tetris.s(10)
+resteax (lsave.o):
+    tetris.o                  tetris.s(883)
+saveeax (lsave.o):
+    tetris.o                  tetris.s(874)
+shlax2 (aslax2.o):
+    tetris.o                  tetris.s(984)
+shlax3 (aslax3.o):
+    tetris.o                  tetris.s(587)
+    tetris.o                  tetris.s(991)
+shlax4 (aslax4.o):
+    tetris.o                  tetris.s(586)
+    tetris.o                  tetris.s(990)
+sp (crt0.o):
+    decsp4.o                  decsp4.s(8)
+    subysp.o                  subysp.s(9)
+    sub.o                     sub.s(9)
+    staxsp.o                  staxsp.s(8)
+    staspidx.o                staspidx.s(9)
+    pushax.o                  pushax.s(8)
+    pusha.o                   pusha.s(8)
+    popsreg.o                 popsreg.s(9)
+    lpush.o                   lpush.s(12)
+    lmul.o                    lmul.s(9)
+    land.o                    land.s(9)
+    ladd.o                    ladd.s(9)
+    incsp2.o                  incsp2.s(8)
+    incsp1.o                  incsp1.s(8)
+    icmp.o                    icmp.s(9)
+    decsp6.o                  decsp6.s(8)
+    decsp5.o                  decsp5.s(8)
+    decsp3.o                  decsp3.s(8)
+    decsp2.o                  decsp2.s(8)
+    addysp.o                  addysp.s(8)
+    add.o                     add.s(11)
+    crt0.o                    ../../asminc/zeropage.inc(11)
+    tetris.o                  tetris.s(10)
+sreg (crt0.o):
+    udiv.o                    udiv.s(9)
+    shelp.o                   shelp.s(12)
+    popsreg.o                 popsreg.s(9)
+    mul8.o                    mul8.s(10)
+    mul.o                     mul.s(10)
+    lsave.o                   lsave.s(8)
+    lpush.o                   lpush.s(12)
+    lmul.o                    lmul.s(9)
+    linc.o                    linc.s(8)
+    land.o                    land.s(9)
+    ladd.o                    ladd.s(9)
+    icmp.o                    icmp.s(9)
+    div.o                     div.s(12)
+    tetris.o                  tetris.s(10)
+staspidx (staspidx.o):
+    tetris.o                  tetris.s(480)
+    tetris.o                  tetris.s(1074)
+    tetris.o                  tetris.s(1483)
+    tetris.o                  tetris.s(1711)
+stax0sp (staxsp.o):
+    tetris.o                  tetris.s(618)
+    tetris.o                  tetris.s(828)
+    tetris.o                  tetris.s(1028)
+staxysp (staxsp.o):
+    tetris.o                  tetris.s(435)
+    tetris.o                  tetris.s(569)
+    tetris.o                  tetris.s(977)
+    tetris.o                  tetris.s(2273)
+subysp (subysp.o):
+    tetris.o                  tetris.s(1374)
+    tetris.o                  tetris.s(2215)
+tmp1 (crt0.o):
+    staspidx.o                staspidx.s(9)
+    shelp.o                   shelp.s(12)
+    mul.o                     mul.s(10)
+    mod.o                     mod.s(12)
+    land.o                    land.s(9)
+    ladd.o                    ladd.s(9)
+    div.o                     div.s(12)
+    asrax4.o                  asrax4.s(9)
+    asrax2.o                  asrax2.s(8)
+    aslax4.o                  aslax4.s(8)
+    aslax3.o                  aslax3.s(8)
+    aslax2.o                  aslax2.s(8)
+    tetris.o                  tetris.s(10)
+tmp2 (crt0.o):
+    shelp.o                   shelp.s(12)
+    lmul.o                    lmul.s(9)
+    div.o                     div.s(12)
+tmp3 (crt0.o):
+    lmul.o                    lmul.s(9)
+tmp4 (crt0.o):
+    lmul.o                    lmul.s(9)
+tosadd0ax (ladd.o):
+    tetris.o                  tetris.s(520)
+tosadda0 (add.o):
+tosaddax (add.o):
+    tetris.o                  tetris.s(596)
+tosaddeax (ladd.o):
+tosand0ax (land.o):
+tosandeax (land.o):
+    tetris.o                  tetris.s(540)
+tosdiva0 (div.o):
+    tetris.o                  tetris.s(2626)
+tosdivax (div.o):
+tosicmp (icmp.o):
+    tetris.o                  tetris.s(3266)
+tosicmp0 (icmp.o):
+tosmoda0 (mod.o):
+    tetris.o                  tetris.s(2354)
+tosmodax (mod.o):
+tosmul0ax (lmul.o):
+tosmula0 (mul8.o):
+tosmulax (mul.o):
+tosmuleax (lmul.o):
+tossuba0 (sub.o):
+tossubax (sub.o):
+    tetris.o                  tetris.s(1961)
+    tetris.o                  tetris.s(2627)
+tosudiva0 (udiv.o):
+    tetris.o                  tetris.s(913)
+tosudivax (udiv.o):
+tosumoda0 (umod.o):
+    tetris.o                  tetris.s(928)
+tosumodax (umod.o):
+tosumul0ax (lmul.o):
+tosumula0 (mul8.o):
+tosumulax (mul.o):
+    tetris.o                  tetris.s(610)
+tosumuleax (lmul.o):
+    tetris.o                  tetris.s(515)
+udiv16 (udiv.o):
+    umod.o                    umod.s(8)
+    mod.o                     mod.s(11)
+    div.o                     div.s(11)
+zerobss (zerobss.o):
+    crt0.o                    crt0.s(10)
+    crt0.o                    crt0.s(9)
+zpspace (crt0.o):
+

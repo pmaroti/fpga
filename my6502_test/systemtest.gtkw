@@ -1,0 +1,69 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Thu Aug 22 14:15:56 2024
+[*]
+[dumpfile] "/Users/maro/stuff/fpga/my6502_test/system_test.vcd"
+[dumpfile_mtime] "Thu Aug 22 14:15:41 2024"
+[dumpfile_size] 70715
+[savefile] "/Users/maro/stuff/fpga/my6502_test/systemtest.gtkw"
+[timestart] 0
+[size] 1920 1190
+[pos] 1342 131
+*-2.424036 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] test.
+[treeopen] test.system_6502.
+[treeopen] test.system_6502.cpu1.
+[sst_width] 253
+[signals_width] 152
+[sst_expanded] 1
+[sst_vpaned_height] 365
+@28
+test.system_6502.cclk
+test.system_6502.reset
+@22
+test.system_6502.ca[15:0]
+@28
+test.system_6502.csirom
+@22
+test.system_6502.ido[7:0]
+test.system_6502.cdi[7:0]
+@28
+test.system_6502.csiram
+test.system_6502.csi_reg
+@22
+test.system_6502.cdo[7:0]
+test.system_6502.cpu1.A[7:0]
+test.system_6502.cpu1.X[7:0]
+test.system_6502.cpu1.Y[7:0]
+@820
+test.system_6502.cpu1.statename[47:0]
+@23
+test.leds[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

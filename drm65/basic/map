@@ -1,0 +1,21 @@
+Modules list:
+-------------
+basic.o:
+    CODE              Offs = 000000   Size = 00283F
+
+
+Segment list:
+-------------
+Name                  Start   End     Size
+--------------------------------------------
+CODE                  00C000  00E83E  00283F
+
+
+Exports list:
+-------------
+
+
+
+Imports list:
+-------------
+

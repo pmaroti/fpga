@@ -14,7 +14,7 @@ module uart_chip( clk, reset, AB, DO, DI, CS, WE, uartRx, uartTx);
     reg [7:0]uart_do;      // internal data out bus
     reg oe_reg;            // output_enable_register
 
-    localparam DELAY_FRAMES = 235; // 27,000,000 (27Mhz) / 115200 Baud rate
+    localparam DELAY_FRAMES = 240; // 27,000,000 (27Mhz) / 115200 Baud rate
     localparam DELAYHALF_FRAME = 117;  // 0.5 bit length
 
     localparam IDLE =  3'd0,

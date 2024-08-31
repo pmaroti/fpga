@@ -107,5 +107,5 @@ module system (
             reset_cntr <= reset_cntr + 8'b1;
         end
     end
-  
+
 endmodule

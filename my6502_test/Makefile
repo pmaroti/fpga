@@ -6,7 +6,7 @@ all: system.fs
 
 # Synthesis
 system.json: system.v
-	yosys -p "read_verilog system.v cpu6502.v; synth_gowin -top system -json system.json"
+	yosys -p "read_verilog system.v; synth_gowin -top system -json system.json"
 
 # Place and Route
 system_pnr.json: system.json
@@ -42,6 +42,6 @@ gtkw:
 	gtkwave systemtest.gtkw
 
 .PHONY: load
-.INTERMEDIATE: test_6502_pnr.json test_6502.json
+.INTERMEDIATE: system_pnr.json system.json
 
 

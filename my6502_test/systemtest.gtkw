@@ -1,12 +1,12 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Thu Aug 22 14:15:56 2024
+[*] Sat Aug 31 08:22:47 2024
 [*]
 [dumpfile] "/Users/maro/stuff/fpga/my6502_test/system_test.vcd"
-[dumpfile_mtime] "Thu Aug 22 14:15:41 2024"
-[dumpfile_size] 70715
+[dumpfile_mtime] "Sat Aug 31 08:16:09 2024"
+[dumpfile_size] 117361
 [savefile] "/Users/maro/stuff/fpga/my6502_test/systemtest.gtkw"
-[timestart] 0
+[timestart] 29
 [size] 1920 1190
 [pos] 1342 131
 *-2.424036 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -50,20 +50,20 @@ test.system_6502.reset
 test.system_6502.ca[15:0]
 @28
 test.system_6502.csirom
-@22
-test.system_6502.ido[7:0]
-test.system_6502.cdi[7:0]
-@28
 test.system_6502.csiram
-test.system_6502.csi_reg
+@29
+test.system_6502.csiled
+@28
+test.system_6502.csiuart
 @22
+test.system_6502.cdi[7:0]
 test.system_6502.cdo[7:0]
 test.system_6502.cpu1.A[7:0]
 test.system_6502.cpu1.X[7:0]
 test.system_6502.cpu1.Y[7:0]
 @820
 test.system_6502.cpu1.statename[47:0]
-@23
+@22
 test.leds[7:0]
 [pattern_trace] 1
 [pattern_trace] 0

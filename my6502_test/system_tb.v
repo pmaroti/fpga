@@ -3,15 +3,16 @@
 
 module test();
 
-  system system_6502(clk, leds);
+  system system_6502(clk, leds, uartRx);
   reg clk=0;
   wire [7:0]leds;
+  reg uartRx=1;
 
   always
     #1  clk = ~clk;
 
   initial begin
-    #90000 $finish;
+    #500 $finish;
   end
 
   initial begin

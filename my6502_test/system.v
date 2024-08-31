@@ -1,4 +1,7 @@
-// `include "cpu6502.v"
+`include "cpu6502.v"
+`include "rom_memory.v"
+`include "ram_memory.v"
+`include "uart_chip.v"
 
 // external connections for the system
 module system (
@@ -34,60 +37,64 @@ module system (
 	wire csiram;
 	wire csiled;
 	wire csiuart;
-	reg [7:0]ido;				// internal ram/rom data out bus
-	(* RAM_STYLE = "block" *) 
-	reg [7:0]rom_int[0:255];	// rom 256 byte
-	(* RAM_STYLE = "block" *) 
-	reg [7:0]ram_int[0:511];	// ram 256 byte zeropage+ full 256 byte stack
+
+	rom_memory rom1(
+		.clk(cclk), 
+		.reset(reset), 
+		.AB(ca[7:0]), 
+		.DO(cdi), 
+		.CS(csirom),
+		.WE(we)
+	);
+
+	ram_memory ram1(
+		.clk(cclk), 
+		.reset(reset), 
+		.AB(ca[8:0]), 
+		.DO(cdi), 
+		.DI(cdo),
+		.CS(csiram),
+		.WE(we)
+	);
+
+	uart_chip uart1(
+		.clk(cclk), 
+		.reset(reset), 
+		.AB(ca[7:0]), 
+		.DO(cdi), 
+		.DI(cdo), 
+		.CS(csiuart), 
+		.WE(we),
+		.uartRx(uartRx)
+	);
+
+
+// clock section
+	assign cclk = clk;	
+
+// address decoding for "chip select lines"
+	assign csirom  = (ca[15:8] == 8'hFF) ? 1'b1 : 1'b0; 		// FF00-FFFF
+	assign csiram  = (ca[15:9] == 7'b0000_000) ? 1'b1 : 1'b0;	// 0000-0100
+	assign csiled  = (ca[15:8] == 8'h10) ? 1'b1 : 1'b0; 		// 1000-10FF
+	assign csiuart = (ca[15:8] == 8'h20) ? 1'b1 : 1'b0; 		// 2000-20FF
+
 
 // IO section
-	reg [4:0]ledreg;
-
-
-	assign csirom = (ca[15:8] == 8'hFF) ? 1'b1 : 1'b0; // chip select for internal rom (active high)
-	assign csiram = (ca[15:9] == 7'b0000_000) ? 1'b1 : 1'b0; // chip select for internal ram (active high) 0x0000-0x01FF
-	assign csiled = (ca == 16'h1000) ? 1'b1 : 1'b0; // chip select for ledport (active high)
-	assign csiuart = (ca[15:4] == 12'h200) ? 1'b1 : 1'b0; // chip select for uart (active high)
-
-	reg csi_reg=0;		// chip select register based on adress bus active id rom or ram adressed
-
-	assign led = {~received, ~ledreg};
+	reg [5:0]ledreg;
+	assign led = ~ledreg;
 
 	always @(posedge cclk) begin
+
 		if (reset) begin
 			ledreg <= 8'h00;
 		end
+
 		if (csiled) begin
-			if (we) ledreg <= cdo[4:0];
-		end else begin
-			if (csirom) begin
-				ido <= rom_int[ca[7:0]];
-			end else if (csiram) begin
-				if (we) 
-					ram_int[ca[7:0]]<=cdo;
-				else
-					ido <= ram_int[ca[7:0]];
-			end else if (csiuart) begin
-				if (!we) begin
-					if(ca[0] == 1'b0 ) begin
-						ido <= {7'b0000_000, received};
-						receive_read <= 1'b0;
-					end else begin
-						ido <= rx_byte;
-						receive_read <= 1'b1;
-					end
-				end
-			end 
-			csi_reg <= csirom | csiram | csiuart;
-		end
+			if (we) begin
+				ledreg <= cdo[5:0];
+			end
+		end 
 	end
-
-	assign cdi = csi_reg ? ido : 8'bzzzz_zzzz;
-
-	initial $readmemh("rom.hex", rom_int);  //rom date from compiled program
-
-// clock section
-	assign cclk = clk;
 
 // reset signal section
 	localparam RESET_TIME = 5;
@@ -102,95 +109,4 @@ module system (
 		end
 	end
 
-// UART receiver
-	localparam DELAY_FRAMES = 235; // 27,000,000 (27Mhz) / 115200 Baud rate
-	localparam DELAYHALF_FRAME = 117;  // 0.5 bit length
-
-	localparam IDLE =  3'd0,
-               START = 3'd1,
-               DATA =  3'd2,
-               STOP =  3'd3;
-
-	reg [7:0] rx_byte;
-	reg [2:0] rx_status;
-	reg received;
-	reg receive_set;
-	reg receive_read;
-	
-	reg o_receive_set;
-	reg o_receive_read;
-
-	reg [15:0] rx_counter;
-	reg [2:0] bit_counter;
-
-	always @(posedge cclk) begin
-		if (reset) begin
-			received <= 1'b0;
-			o_receive_set <= 1'b0;
-			o_receive_read <= 1'b0;
-		end
-
-		if (receive_set && !o_receive_set)
-			received <= 1'b1;
-
-		if (receive_read && !o_receive_read)
-			received <= 1'b0;
-
-		o_receive_set <= receive_set;
-		o_receive_read <= receive_read;
-	end
-
-	always @(posedge cclk) begin
-		if (reset) begin
-			rx_status <= IDLE;
-		end
-
-		case(rx_status)
-			IDLE: begin
-				receive_set <= 1'b0;
-				if (uartRx == 0) begin
-					rx_status <= START;
-					rx_counter <= 0;
-				end
-			end
-
-			START: begin
-				if (rx_counter < (DELAY_FRAMES+DELAYHALF_FRAME) ) begin
-					rx_counter <= rx_counter + 1;
-				end else begin
-					rx_status <= DATA;
-					rx_counter <= 0;
-					bit_counter <= 0;
-					rx_byte[0] <= (uartRx);
-				end
-			end
-
-			DATA: begin
-				if (rx_counter < DELAY_FRAMES) begin
-					rx_counter <= rx_counter + 1;
-				end else begin
-					rx_byte[bit_counter+1] <= (uartRx);
-					rx_counter <= 0;
-					if (bit_counter == 7) begin
-						rx_status <= STOP;
-					end else begin
-						bit_counter <= bit_counter + 1;
-					end
-				end
-			end
-
-			STOP: begin
-				if (rx_counter < (DELAY_FRAMES+DELAYHALF_FRAME) ) begin
-					rx_counter <= rx_counter + 1;
-				end else begin
-					rx_status <= IDLE;
-					receive_set <= 1'b1;
-				end
-			end
-
-			default: begin
-				rx_status <= IDLE;
-			end
-		endcase
-	end
 endmodule

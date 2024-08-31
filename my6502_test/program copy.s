@@ -8,15 +8,10 @@ reset:
 
     LDA #$00
 lp:
-    PHA                 ; save current ledval
-    LDA $2000           ; status register
-    AND #$01            ; bit0 is receive ready flag
-    BEQ cont1           ; jump if nothing is received
-    PLA                 ; drop current ledvalue
-    LDA $2001           ; read from serial
-    PHA                 ; change to the read one
+    LDX $2000
+    BEQ cont1
+    LDA $2001
 cont1:
-    PLA                 ; restore ledval
     STA $1000           ; ledpin output
     ADC #1              ; increment A
 
@@ -25,9 +20,8 @@ lp2:
     JSR sleep1ms
     DEX
     BNE lp2
-    STA $2000           ; sending current ledval in serial
 
-    JMP lp              ; loop
+    JMP lp
 
 sleep1ms:
     PHA     ;3
